@@ -103,6 +103,26 @@ This repository does **not** attempt to provide production-ready implementations
 
 ---
 
+## 🌐 Website (GitHub Pages)
+
+A static site showcasing all 50 ideas lives in [`docs/`](docs/) — hero, searchable/filterable catalog, per-idea detail views with architecture diagrams, and the AI platform landscape. No build step, no frameworks, no trackers.
+
+**Deploy it (one-time setup):**
+
+1. Push this repository to GitHub
+2. Go to **Settings → Pages** (Build and deployment)
+3. Set **Source** → *Deploy from a branch*
+4. Set **Branch** → `master`, **Folder** → `/docs`
+5. Save — the site goes live at `https://<username>.github.io/devops-ai-implementation-ideas/`
+
+**Regenerate the site data** after adding or editing ideas:
+
+```bash
+python scripts/export_ideas_js.py   # rebuilds docs/ideas.js from the idea metadata
+```
+
+---
+
 ## 🗂️ Repository Structure
 
 ```text

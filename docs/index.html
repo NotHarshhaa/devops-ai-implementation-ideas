@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevOps AI Implementation Ideas — 50 ideas for applying AI to DevOps</title>
+  <meta name="description" content="An open catalog of 50 practical AI × DevOps implementation ideas: CI/CD, Kubernetes, IaC, Cloud, Observability, DevSecOps, Platform Engineering and agentic operations — each with problem, solution and architecture." />
+  <meta property="og:title" content="DevOps AI Implementation Ideas" />
+  <meta property="og:description" content="50 practical AI × DevOps implementation ideas with problems, solutions and architectures. Multi-platform, human-in-the-loop, security-first." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23272321'/%3E%3Ctext x='14' y='42' font-family='monospace' font-size='26' fill='%2325b1b1'%3E%3E_%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz@6..96&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+  <!-- ================= Header ================= -->
+  <header class="site-header" id="top">
+    <div class="container header-inner">
+      <a class="wordmark" href="#top">DevOps <span class="amp">&times;</span> AI Ideas</a>
+      <nav class="site-nav" aria-label="Main">
+        <a class="nav-link" href="#features">Why</a>
+        <a class="nav-link" href="#platforms">Platforms</a>
+        <a class="nav-link" href="#catalog">Catalog</a>
+        <a class="btn btn-square" href="https://github.com/NotHarshhaa/devops-ai-implementation-ideas" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn btn-teal" href="https://github.com/NotHarshhaa/devops-ai-implementation-ideas/stargazers" target="_blank" rel="noopener">Star&nbsp;&starf;</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================= Hero ================= -->
+    <section class="hero">
+      <div class="container hero-inner">
+        <div class="hero-badges">
+          <span class="badge"><span class="dot"></span>50 ideas · architecture documented</span>
+          <span class="badge"><span class="dot"></span>multi-platform</span>
+          <span class="badge"><span class="dot"></span>human-in-the-loop</span>
+        </div>
+        <h1 class="display">Where AI actually meets Dev<span class="teal">Ops</span>.</h1>
+        <p class="body-copy hero-sub">
+          An open catalog of 50 practical implementation ideas for applying AI to CI/CD,
+          Kubernetes, Infrastructure as Code, Cloud, Observability, Security and Platform
+          Engineering — each with a real problem, a proposed solution and a documented
+          architecture. Provider-agnostic. Security-first. Human-in-the-loop.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-square" href="#catalog">Browse the 50 ideas</a>
+          <a class="btn btn-teal" href="https://github.com/NotHarshhaa/devops-ai-implementation-ideas" target="_blank" rel="noopener">Read on GitHub</a>
+        </div>
+
+        <!-- Terminal product demo -->
+        <div class="terminal" role="img" aria-label="Demo of an AI pipeline failure analyzer session">
+          <div class="terminal-chrome">
+            <span class="c"></span><span class="c"></span><span class="c"></span>
+            <span class="title">ai-devops — idea 01 · pipeline failure analyzer</span>
+          </div>
+          <div class="terminal-body">
+<span class="t-prompt">$</span> ai-devops analyze <span class="t-arg">--pipeline 1874</span><br />
+<span class="t-ok">✔</span> logs collected <span class="t-dim">· 14,203 lines → 38 relevant · secrets redacted</span><br />
+<span class="t-ok">✔</span> context: <span class="t-arg">commit 9f2c1e · lockfile diff · 3 similar past failures</span><br />
+<br />
+&nbsp;&nbsp;<span class="t-key">root cause</span>&nbsp;&nbsp;<span class="t-val">redis connection pool exhausted</span><br />
+&nbsp;&nbsp;<span class="t-key">evidence</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-val">checkout-api/pod-7f2 · OOMKilled · exit 137</span><br />
+&nbsp;&nbsp;<span class="t-key">suggestion</span>&nbsp;<span class="t-val">bump pool size 10 → 25 · add readiness probe</span><br />
+<br />
+<span class="t-dim">→ fix drafted as PR #512 — awaiting human review</span> <span class="cursor"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Stats ================= -->
+    <section class="stats" aria-label="Catalog statistics">
+      <div class="container stats-grid">
+        <div class="stat"><div class="num">50</div><div class="label">ideas documented, each with an architecture</div></div>
+        <div class="stat"><div class="num">10<span class="unit">+</span></div><div class="label">focus areas across the DevOps landscape</div></div>
+        <div class="stat"><div class="num">40<span class="unit">+</span></div><div class="label">AI platforms &amp; models referenced with roles</div></div>
+        <div class="stat"><div class="num">100<span class="unit">%</span></div><div class="label">problem-first · human-in-the-loop · security-first</div></div>
+      </div>
+    </section>
+
+    <!-- ================= Features ================= -->
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Why this catalog</p>
+            <h2 class="section-heading">Not “add AI everywhere”.<br />Add it where it earns its keep.</h2>
+          </div>
+          <p class="body-copy">
+            Every idea starts from a real DevOps pain point and works forward to an
+            architecture — never the other way around.
+          </p>
+        </div>
+
+        <div class="hairline-grid">
+          <div class="tile">
+            <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
+            <h3>Problem-first</h3>
+            <p>Each idea opens with the concrete toil or risk it removes — log archaeology, flaky triage, IAM sprawl — before any model is mentioned.</p>
+          </div>
+          <div class="tile">
+            <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            <h3>Architecture documented</h3>
+            <p>Components, data flow, diagrams and platform mapping for all 50 ideas — enough to start a prototype tomorrow.</p>
+          </div>
+          <div class="tile">
+            <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="m3 13 9 5 9-5"/></svg>
+            <h3>Multi-platform by design</h3>
+            <p>Frontier, efficient, open-weight and local models — with gateways for routing, fallbacks and budgets. Swap any layer.</p>
+          </div>
+          <div class="tile">
+            <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="m16 8 2 2 4-4"/></svg>
+            <h3>Human-in-the-loop</h3>
+            <p>Explicit approval tiers everywhere: the AI investigates and suggests, humans review and act. Automation is earned, not assumed.</p>
+          </div>
+          <div class="tile">
+            <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 8.2 7 9.9 4-1.7 7-5.4 7-9.9V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+            <h3>Security first</h3>
+            <p>Redaction before model calls, least-privilege tool access, immutable audit trails and prompt-injection defenses.</p>
+          </div>
+          <div class="tile">
+            <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5c0-1 1-1.8 2.5-1.8s2.5.8 2.5 1.8-1 1.5-2.5 1.9-2.5.9-2.5 1.9 1 1.8 2.5 1.8 2.5-.8 2.5-1.8"/></svg>
+            <h3>Cost-aware</h3>
+            <p>Event-driven workloads, cheap model tiers for triage, frontier models for deep analysis, and local-model escape hatches.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Platform landscape ================= -->
+    <section class="section" id="platforms" style="padding-top: 0;">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">The AI platform landscape</p>
+            <h2 class="section-heading">Pick per layer,<br />not per vendor.</h2>
+          </div>
+          <p class="body-copy">
+            Ideas reference platforms by role — reasoning, routing, retrieval, tool access,
+            observability — so any layer can be swapped without redesigning the rest.
+          </p>
+        </div>
+
+        <div class="hairline-grid" id="platform-grid">
+          <div class="tile platform-tile">
+            <span class="p-name">Frontier models (cloud)</span>
+            <ul class="p-list"><li>OpenAI GPT-5.x</li><li>Claude Opus/Sonnet 4.x</li><li>Gemini 3 Pro</li><li>xAI Grok</li><li>Z.ai GLM</li></ul>
+          </div>
+          <div class="tile platform-tile">
+            <span class="p-name">Cost-efficient tiers</span>
+            <ul class="p-list"><li>GPT-5 Mini/Nano</li><li>Claude Haiku 4.5</li><li>Gemini Flash</li><li>DeepSeek V4</li><li>Mistral Small</li></ul>
+          </div>
+          <div class="tile platform-tile">
+            <span class="p-name">Routing &amp; gateways</span>
+            <ul class="p-list"><li>LiteLLM</li><li>OpenRouter</li><li>Portkey</li><li>Kong AI Gateway</li><li>Cloudflare AI Gateway</li></ul>
+          </div>
+          <div class="tile platform-tile">
+            <span class="p-name">Open-weight / local</span>
+            <ul class="p-list"><li>DeepSeek V4</li><li>Qwen 3.x</li><li>Llama 4</li><li>Mistral Large 2</li><li>via vLLM · Ollama</li></ul>
+          </div>
+          <div class="tile platform-tile">
+            <span class="p-name">Agent frameworks</span>
+            <ul class="p-list"><li>LangGraph</li><li>Microsoft Agent Framework</li><li>OpenAI Agents SDK</li><li>Google ADK</li><li>PydanticAI</li><li>CrewAI</li></ul>
+          </div>
+          <div class="tile platform-tile">
+            <span class="p-name">MCP servers (DevOps)</span>
+            <ul class="p-list"><li>GitHub</li><li>kubernetes-mcp-server</li><li>mcp-grafana</li><li>Terraform</li><li>AWS / Azure</li><li>PagerDuty</li></ul>
+          </div>
+          <div class="tile platform-tile">
+            <span class="p-name">Kubernetes AI (CNCF)</span>
+            <ul class="p-list"><li>K8sGPT</li><li>HolmesGPT</li><li>kagent</li><li>kubectl-ai</li></ul>
+          </div>
+          <div class="tile platform-tile">
+            <span class="p-name">AI observability &amp; evals</span>
+            <ul class="p-list"><li>Langfuse</li><li>Arize Phoenix</li><li>LangSmith</li><li>W&amp;B Weave</li><li>OTel GenAI</li><li>promptfoo</li></ul>
+          </div>
+          <div class="tile platform-tile">
+            <span class="p-name">Code &amp; PR reviewers</span>
+            <ul class="p-list"><li>CodeRabbit</li><li>Greptile</li><li>Qodo</li><li>Graphite</li><li>GitLab Duo</li></ul>
+          </div>
+          <div class="tile platform-tile">
+            <span class="p-name">RAG stack</span>
+            <ul class="p-list"><li>pgvector</li><li>Qdrant</li><li>Weaviate</li><li>OpenSearch k-NN</li><li>BGE-M3 embeddings</li></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Catalog ================= -->
+    <section class="section" id="catalog" style="padding-top: 0;">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">The catalog</p>
+            <h2 class="section-heading">50 ideas.<br />One of them is your next weekend build.</h2>
+          </div>
+          <p class="body-copy">
+            Filter by focus area or search across names, problems and integrations.
+            Click any idea for the full brief — problem, workflow, architecture and platforms.
+          </p>
+        </div>
+
+        <div class="catalog-toolbar">
+          <div class="toolbar-row">
+            <div class="search-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input id="search" type="search" placeholder="search 50 ideas…  ( / )" aria-label="Search ideas" />
+            </div>
+            <div class="segmented" role="group" aria-label="View mode">
+              <button id="view-grid" class="active" aria-pressed="true">Grid</button>
+              <button id="view-index" aria-pressed="false">Index</button>
+            </div>
+          </div>
+          <div class="tab-strip" id="area-tabs" role="tablist" aria-label="Filter by focus area"></div>
+        </div>
+
+        <p class="result-count" id="result-count" aria-live="polite"></p>
+        <div id="results"></div>
+      </div>
+    </section>
+
+    <!-- ================= CTA ================= -->
+    <section class="section" style="padding-top: 0;">
+      <div class="container">
+        <div class="cta">
+          <span class="badge"><span class="dot" style="background: var(--color-deep-teal);"></span>Open source · MIT · ideas → architectures → implementations</span>
+          <h2>Ship the first implementation.</h2>
+          <p>
+            Phase 1 — the ideas — is documented. Phase 3 is yours: pick an idea, prototype it
+            against free tiers or local models, and contribute it back. The catalog grows by
+            being built.
+          </p>
+          <div class="row">
+            <a class="btn btn-white" href="#catalog">Browse ideas</a>
+            <a class="btn btn-ghost-white" href="https://github.com/NotHarshhaa/devops-ai-implementation-ideas/blob/master/CONTRIBUTING.md" target="_blank" rel="noopener">Read CONTRIBUTING.md</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= Footer ================= -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="f-brand">
+          <a class="wordmark" href="#top">DevOps <span class="amp">&times;</span> AI Ideas</a>
+          <p class="body-copy">A practical, open catalog answering one question: what can we actually build when AI meets DevOps?</p>
+        </div>
+        <div class="f-col">
+          <h5>Catalog</h5>
+          <ul>
+            <li><a href="#catalog">All 50 ideas</a></li>
+            <li><a href="#platforms">AI platform landscape</a></li>
+            <li><a href="https://github.com/NotHarshhaa/devops-ai-implementation-ideas/blob/master/README.md" target="_blank" rel="noopener">README on GitHub</a></li>
+          </ul>
+        </div>
+        <div class="f-col">
+          <h5>Contribute</h5>
+          <ul>
+            <li><a href="https://github.com/NotHarshhaa/devops-ai-implementation-ideas/blob/master/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing guide</a></li>
+            <li><a href="https://github.com/NotHarshhaa/devops-ai-implementation-ideas/issues" target="_blank" rel="noopener">Issues</a></li>
+            <li><a href="https://github.com/NotHarshhaa/devops-ai-implementation-ideas" target="_blank" rel="noopener">Repository</a></li>
+          </ul>
+        </div>
+        <div class="f-col">
+          <h5>Status</h5>
+          <ul>
+            <li><a href="https://github.com/NotHarshhaa/devops-ai-implementation-ideas#-idea-catalog" target="_blank" rel="noopener">💡 → 📐 → 🛠️ → ✅</a></li>
+            <li><a href="https://github.com/NotHarshhaa/devops-ai-implementation-ideas#-roadmap" target="_blank" rel="noopener">Roadmap</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>MIT License · © 2026 DevOps AI Implementation Ideas contributors</span>
+        <span>static site · no trackers · ideas 01–50</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= Idea modal ================= -->
+  <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal" id="modal">
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <script src="./ideas.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
