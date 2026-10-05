@@ -68,7 +68,39 @@ A troubleshooting service (or in-cluster agent) watches for unhealthy workloads 
 5. The fix is validated with `--dry-run=server` and offered as a command or GitOps pull request.
 6. The engineer approves or rejects; the outcome is stored for retrieval and evaluation.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "workload": {
+    "namespace": "production",
+    "kind": "Deployment",
+    "name": "payment-service"
+  },
+  "status_summary": "CrashLoopBackOff (exit code 137 - OOMKilled)",
+  "ranked_causes": [
+    {
+      "rank": 1,
+      "hypothesis": "Container exceeded 512Mi memory limit during JVM heap initialization",
+      "confidence": 0.94,
+      "evidence": "Pod status terminated reason: OOMKilled, restart count: 8 within 15 minutes"
+    }
+  ],
+  "remediation": {
+    "type": "manifest_patch",
+    "safe_dry_run_command": "kubectl patch deployment payment-service -n production --patch '{"spec":{"template":{"spec":{"containers":[{"name":"app","resources":{"limits":{"memory":"1Gi"}}}]}}}}' --dry-run=server",
+    "gitops_pull_request": {
+      "repo": "infra/k8s-manifests",
+      "file": "apps/payment-service/values.yaml",
+      "diff": "- resources.limits.memory: 512Mi\n+ resources.limits.memory: 1Gi"
+    }
+  }
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -82,7 +114,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | Open-weight / self-hosted models | DeepSeek V4 · Qwen 3.x · Llama 4 · Mistral Large 2 served via vLLM or Ollama | keeps sensitive logs and infrastructure data in-house; zero per-token cost |
 | AI observability & evaluation | Langfuse · Arize Phoenix · LangSmith · W&B Weave · OpenTelemetry GenAI conventions · promptfoo | tracing of every model and tool call, cost/latency tracking, prompt regression evals |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -94,37 +126,37 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `node conditions`
 * `related ConfigMaps/Secrets`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 Diagnosis is automatic; every change goes through approval. The agent proposes kubectl commands that are shown with `--dry-run=server` output, or a GitOps PR, and a human applies them.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
 * Run the agent under a dedicated service account with read-only verbs; never bind cluster-admin.
 * Scrub Secret contents and sensitive annotations from all context; log redaction at the collector boundary.
-* Whitelist namespaces and clusters the agent may investigate; per-tenant audit trail of every API call the model made.
+* Allowlist namespaces and clusters the agent may investigate; per-tenant audit trail of every API call the model made.
 * For regulated clusters, run the model locally (Ollama/vLLM) so pod data never leaves the network.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 Start as a stateless service (or even a CLI) invoked by webhooks, schedules, or chat commands. Containerize it, give it read-only credentials scoped to one system, and only graduate to a long-running agent with an approval queue once precision is trusted.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Investigations are event-driven (alerts, crash loops). A typical investigation is 5-15 tool calls plus one or two reasoning calls — cents with cloud models, free with self-hosted open-weight models.
 
-## 12. Alternative Approaches
+## 13. Alternative Approaches
 
 * Buy: deploy K8sGPT or HolmesGPT directly and skip custom plumbing; build custom only for org-specific context.
 * In-cluster operator vs. external service: in-cluster has direct API access; external keeps model traffic off-cluster.
 * CLI-first (`kubectl ai`-style) instead of chat — same evidence pipeline, developer-invoked.
 
-## 13. Related Ideas
+## 14. Related Ideas
 
-- [13 · AI Pod Crash Analyzer](../13-ai-pod-crash-analyzer/README.md)
-- [17 · AI Kubernetes Incident Investigator](../17-ai-kubernetes-incident-investigator/README.md)
-- [19 · AI Cluster Operations Agent](../19-ai-cluster-operations-agent/README.md)
+- [13 · AI Pod Crash Analyzer](../../13-ai-pod-crash-analyzer/README.md)
+- [17 · AI Kubernetes Incident Investigator](../../17-ai-kubernetes-incident-investigator/README.md)
+- [19 · AI Cluster Operations Agent](../../19-ai-cluster-operations-agent/README.md)

@@ -19,7 +19,7 @@ Jenkins console output is notoriously verbose: hundreds of plugin lines, Maven/G
 
 * Console logs routinely exceed tens of thousands of lines; the failing line is often 90% down the page.
 * Plugin ecosystem failures (credentials, agents, JDK tool installs) produce misleading errors far from the root cause.
-* Freestyle vs. pipeline, agent offline, and workspace issues all look alike from the outside.
+* Freestyle vs. declarative pipeline errors, offline build agents, and workspace exhaustion issues present overlapping failure signatures.
 * Jenkins expertise is concentrated in one or two veterans per org.
 
 **Why it matters:** Jenkins remains the backbone of many enterprises; every unclear failure stalls a delivery team until a Jenkins expert becomes available.
@@ -101,6 +101,7 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 * `stage/step graph`
 * `node and agent status`
 * `plugin versions`
+* `build agent environment variables and executor labels`
 * `Jenkinsfile (if pipeline)`
 * `triggering commit`
 
@@ -108,7 +109,7 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Jenkins REST API (read-only)
+* Jenkins REST API (read-only: logs, stage graphs, agent metrics)
 
 ## ✅ Expected Benefits
 
@@ -134,4 +135,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

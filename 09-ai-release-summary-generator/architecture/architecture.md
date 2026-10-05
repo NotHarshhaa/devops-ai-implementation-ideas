@@ -6,7 +6,7 @@
 
 ## 1. Overview
 
-On tag/release, the generator collects PRs, commit messages, linked issues, and labels for the release range, then produces structured notes per audience into the GitHub Release, a changelog file (PR), and a Slack announcement draft — with humans editing before anything customer-facing goes out.
+On tag/release, the generator collects PRs, commit messages, linked issues, and labels for the release range, then produces structured notes per audience for the GitHub Release, a changelog file (PR), and a Slack announcement draft — with humans editing before anything customer-facing goes out.
 
 ## 2. High-Level Architecture
 
@@ -54,7 +54,31 @@ On tag/release, the generator collects PRs, commit messages, linked issues, and 
 4. Drafts go to the release body, a changelog PR, and a Slack draft for editing.
 5. Human edits are captured as style feedback.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "release_tag": "v2.5.0",
+  "compare_range": "v2.4.1...v2.5.0",
+  "total_prs": 18,
+  "breaking_changes": [
+    {
+      "component": "Authentication API",
+      "description": "Removed support for legacy API token query parameters; headers now required",
+      "migration_steps": "Pass 'Authorization: Bearer <token>' in HTTP headers instead of '?token=...' query params"
+    }
+  ],
+  "audience_summaries": {
+    "engineering_changelog": "- feat(auth): migrate to Bearer token headers (#412) by @bob\n- fix(db): fix connection pool leak on idle timeout (#415)",
+    "product_highlights": "Enhanced API security with strict bearer token enforcement and improved database connection resilience.",
+    "customer_facing_notes": "We've upgraded our API authentication standards to ensure top-grade security for your account credentials."
+  }
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -66,7 +90,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | Model routing & AI gateways | LiteLLM · OpenRouter · Portkey · Kong AI Gateway · Cloudflare AI Gateway | provider-agnostic routing with fallbacks, budgets, caching, and audit logs |
 | AI observability & evaluation | Langfuse · Arize Phoenix · LangSmith · W&B Weave · OpenTelemetry GenAI conventions · promptfoo | tracing of every model and tool call, cost/latency tracking, prompt regression evals |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -74,32 +98,33 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `linked issues`
 * `commit messages`
 * `semantic version delta`
+* `semantic versioning tags & milestone metadata`
 * `past release notes style`
 * `CODEOWNERS for review routing`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 All outputs are drafts. Customer-facing text requires explicit human approval by default.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
 * Internal-only notes must not leak to public changelogs: separate templates and explicit approval for external publication.
 * Strip internal hostnames/ticket URLs from customer-facing drafts.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 Start as a stateless service (or even a CLI) invoked by webhooks, schedules, or chat commands. Containerize it, give it read-only credentials scoped to one system, and only graduate to a long-running agent with an approval queue once precision is trusted.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Events are batch-shaped and bursts follow working hours, so spend is spiky but low. Mini/flash-class models typically handle triage at a fraction of a cent per event; a frontier model is reserved for the deep-analysis step, and an open-weight model via Ollama or vLLM can bring marginal cost to zero at the price of self-hosting.
 
-## 12. Related Ideas
+## 13. Related Ideas
 
-- [24 · AI Infrastructure Documentation Generator](../24-ai-infrastructure-documentation-generator/README.md)
-- [43 · AI DevOps Documentation Generator](../43-ai-devops-documentation-generator/README.md)
-- [08 · AI Deployment Risk Analyzer](../08-ai-deployment-risk-analyzer/README.md)
+- [24 · AI Infrastructure Documentation Generator](../../24-ai-infrastructure-documentation-generator/README.md)
+- [43 · AI DevOps Documentation Generator](../../43-ai-devops-documentation-generator/README.md)
+- [08 · AI Deployment Risk Analyzer](../../08-ai-deployment-risk-analyzer/README.md)

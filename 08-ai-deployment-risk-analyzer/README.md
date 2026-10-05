@@ -15,7 +15,7 @@
 
 ## 📌 Problem
 
-Not all deployments deserve the same scrutiny, but most pipelines treat them identically: same gates, same speed, same review depth — which means high-risk changes slide through and low-risk ones crawl.
+Not all deployments carry the same risk, yet most pipelines treat them identically: same gates, same velocity, same review depth — allowing high-risk changes to slip through while low-risk changes queue unnecessarily.
 
 * Risk signals (change size, past failure correlation, unfamiliarity of the author with the service) exist but aren't systematically used.
 * Change failure rates are measured after the fact, never predicted before the deploy.
@@ -30,7 +30,7 @@ Not all deployments deserve the same scrutiny, but most pipelines treat them ide
 | Risk scoring | combines diff size/complexity, component criticality, author familiarity, and deploy timing into an explainable score |
 | Historical correlation | finds past incidents linked to similar changes in the same components |
 | Anomaly detection | flags deploys that look statistically unusual for this service (frequency, size, timing) |
-| Recommendation | suggests mitigations: canary first, extra reviewers, off-peak window, feature flag default-off |
+| Recommendation | suggests targeted mitigations: progressive canary rollout, additional domain reviewer, off-peak deployment window, or feature flag defaulting to off |
 
 ## 💡 Proposed Solution
 
@@ -135,4 +135,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

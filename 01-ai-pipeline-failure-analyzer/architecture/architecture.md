@@ -67,7 +67,36 @@ A webhook-driven analyzer listens for pipeline failure events, collects the fail
 5. The reporter publishes the diagnosis to the PR and Slack, with deep links to the exact evidence lines.
 6. Human feedback (helpful / wrong / flaky) is written back to the store for evals and future retrieval.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "failure_type": "build | test | dependency | infrastructure | timeout | flaky",
+  "root_cause": "Detailed explanation of why the failure occurred in this specific run",
+  "evidence": [
+    {
+      "step": "build-container",
+      "line_number": 412,
+      "log_snippet": "error TS2322: Type 'string' is not assignable to type 'number'"
+    }
+  ],
+  "correlated_diff": {
+    "file": "src/types/api.ts",
+    "commit": "a1b2c3d",
+    "change_summary": "Changed paymentId field definition from number to string"
+  },
+  "suggested_fix": {
+    "action": "code_change",
+    "description": "Cast paymentId or update caller contract in src/services/checkout.ts line 45",
+    "command_or_snippet": "const id = Number(data.paymentId);"
+  },
+  "confidence_score": 0.95
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -79,7 +108,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | RAG stack | pgvector · Qdrant · Weaviate · OpenSearch k-NN; embeddings from OpenAI, Cohere Embed, or open BGE-M3 | retrieval over runbooks, docs, wikis, past incidents, and changelogs |
 | AI observability & evaluation | Langfuse · Arize Phoenix · LangSmith · W&B Weave · OpenTelemetry GenAI conventions · promptfoo | tracing of every model and tool call, cost/latency tracking, prompt regression evals |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -87,33 +116,34 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `step timings and exit codes`
 * `commit diff and message`
 * `dependency lockfile changes`
+* `build environment and runner metadata`
 * `past similar failures`
 * `flaky-test registry`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 Read-only by design: the analyzer never retries pipelines or edits files. It suggests; the engineer decides whether to re-run, revert, or fix.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
 * Redact secrets, tokens, and internal hostnames from logs before any model call; prefer a local model for the most sensitive repos.
 * Use a read-only, least-privilege GitHub token; the analyzer can never trigger rebuilds or edit code.
 * Allowlist which repositories enable analysis; keep an audit log of every model call with repo, SHA, and cost.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 Start as a stateless service (or even a CLI) invoked by webhooks, schedules, or chat commands. Containerize it, give it read-only credentials scoped to one system, and only graduate to a long-running agent with an approval queue once precision is trusted.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Volume equals your failure rate — typically tens to a few hundred events per day organization-wide. Mini/flash-class models handle triage for well under a cent per event; reserve the frontier model for the initial deep-analysis pass or complex repos only.
 
-## 12. Related Ideas
+## 13. Related Ideas
 
-- [10 · AI Test Failure Analyzer](../10-ai-test-failure-analyzer/README.md)
-- [07 · AI GitHub Actions Debugger](../07-ai-github-actions-debugger/README.md)
-- [04 · AI Log Analyzer](../04-ai-log-analyzer/README.md)
+- [10 · AI Test Failure Analyzer](../../10-ai-test-failure-analyzer/README.md)
+- [07 · AI GitHub Actions Debugger](../../07-ai-github-actions-debugger/README.md)
+- [04 · AI Log Analyzer](../../04-ai-log-analyzer/README.md)

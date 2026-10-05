@@ -36,7 +36,7 @@ The first 15 minutes of an incident are lost to mechanical work: finding dashboa
 
 ## 💡 Proposed Solution
 
-An incident-investigation agent is invoked when an incident is declared (PagerDuty/Opsgenie webhook or Slack `/investigate`). It plans an investigation, gathers evidence through MCP servers for Grafana/Prometheus, Loki, GitHub, cloud APIs, and the incident platform, correlates changes, and streams a structured situation report into the incident channel: timeline, affected services, ranked hypotheses, and suggested next actions. responders can direct it conversationally ('check EU traffic', 'compare to last week').
+An incident-investigation agent is invoked when an incident is declared (PagerDuty/Opsgenie webhook or Slack `/investigate`). It plans an investigation, gathers evidence through MCP servers for Grafana/Prometheus, Loki, GitHub, cloud APIs, and the incident platform, correlates changes, and streams a structured situation report into the incident channel: timeline, affected services, ranked hypotheses, and suggested next actions. Responders can direct it conversationally ('check EU traffic', 'compare to last week').
 
 ### Workflow
 
@@ -160,4 +160,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

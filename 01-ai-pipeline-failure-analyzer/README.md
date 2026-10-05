@@ -40,7 +40,7 @@ A webhook-driven analyzer listens for pipeline failure events, collects the fail
 
 ### Workflow
 
-1. **Detect** — a `check_run` / webhook event or Jenkins GitLab poller notices a failed job
+1. **Detect** — a `check_run` / webhook event or Jenkins / GitLab CI poller notices a failed job
 2. **Collect** — fetch the failed step logs, job metadata, commit SHA, and diff
 3. **Build context** — pull the files at that commit, dependency lockfile changes, and the 3 most similar past failures from the retrieval store
 4. **Analyze** — send a redacted, size-capped context package to the model with a strict output schema
@@ -116,6 +116,7 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 * `step timings and exit codes`
 * `commit diff and message`
 * `dependency lockfile changes`
+* `build environment and runner metadata`
 * `past similar failures`
 * `flaky-test registry`
 
@@ -123,7 +124,7 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* GitHub API (read commits, files, checks) — read-only token
+* GitHub / GitLab / Jenkins REST APIs (read commits, logs, check runs) — read-only token
 
 ## ✅ Expected Benefits
 
@@ -153,4 +154,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

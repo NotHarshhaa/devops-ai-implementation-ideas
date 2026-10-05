@@ -141,7 +141,7 @@ Exposed to the model with scoped, read-first permissions:
 
 * Run the agent under a dedicated service account with read-only verbs; never bind cluster-admin.
 * Scrub Secret contents and sensitive annotations from all context; log redaction at the collector boundary.
-* Whitelist namespaces and clusters the agent may investigate; per-tenant audit trail of every API call the model made.
+* Allowlist namespaces and clusters the agent may investigate; per-tenant audit trail of every API call the model made.
 * For regulated clusters, run the model locally (Ollama/vLLM) so pod data never leaves the network.
 
 ## 🚀 Future Implementation
@@ -158,4 +158,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

@@ -18,7 +18,7 @@
 GitHub Actions failures come with annotations, matrix expansion, re-run semantics, and runner quirks; the raw logs API gives you the data but not the interpretation.
 
 * Matrix builds multiply logs; finding which combination failed and why is manual.
-* Runner/environment failures (disk, network, dependency cache) masquerade as code failures.
+* Runner and environment infrastructure failures (disk exhaustion, GitHub-hosted runner network glitches, cache evictions) masquerade as application code failures.
 * Annotations help but say what failed, never why or what to do.
 * Workflow syntax (expressions, conditions, needs graph) has subtle bugs that only appear at runtime.
 
@@ -102,6 +102,7 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 * `annotations`
 * `runner labels and metadata`
 * `matrix combinations`
+* `composite actions and reusable workflow definitions`
 * `triggering PR diff`
 
 ## 🛠️ Tools the AI May Call
@@ -134,4 +135,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

@@ -54,7 +54,31 @@ The analyzer consumes JUnit/pytest/jest results from CI (or a test-reporting ser
 4. PRs get a card; owners get issues; flaky candidates enter expiry-based quarantine.
 5. Accuracy is tracked against human overrides to improve prompts and thresholds.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "test_suite": "e2e-checkout-tests",
+  "test_name": "test_checkout_with_discount_coupon",
+  "classification": "FLAKY",
+  "confidence": 0.89,
+  "classification_reasons": [
+    "Failed 3 times in last 10 master builds without code changes to coupon module",
+    "Failure occurs on async element polling timeout (3000ms threshold)"
+  ],
+  "root_cause_analysis": "Race condition: Playwright test asserts coupon badge visibility before the background API response completes rendering.",
+  "recommended_action": {
+    "policy": "temporary_quarantine",
+    "quarantine_expiry_days": 7,
+    "suggested_fix": "Use await page.waitForResponse(url) before asserting coupon element visibility",
+    "assigned_team": "frontend-checkout-squad"
+  }
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -66,7 +90,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | Model routing & AI gateways | LiteLLM · OpenRouter · Portkey · Kong AI Gateway · Cloudflare AI Gateway | provider-agnostic routing with fallbacks, budgets, caching, and audit logs |
 | AI observability & evaluation | Langfuse · Arize Phoenix · LangSmith · W&B Weave · OpenTelemetry GenAI conventions · promptfoo | tracing of every model and tool call, cost/latency tracking, prompt regression evals |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -76,29 +100,29 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `runner environment info`
 * `test ownership map`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 Classifications are advisory; auto-quarantine only after a team opts in and always with expiry and owner.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
 * Test output can embed fixtures/secrets: redact before model calls.
 * Quarantine must not become a black hole: expiries and owner reviews are mandatory.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 Start as a stateless service (or even a CLI) invoked by webhooks, schedules, or chat commands. Containerize it, give it read-only credentials scoped to one system, and only graduate to a long-running agent with an approval queue once precision is trusted.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Events are batch-shaped and bursts follow working hours, so spend is spiky but low. Mini/flash-class models typically handle triage at a fraction of a cent per event; a frontier model is reserved for the deep-analysis step, and an open-weight model via Ollama or vLLM can bring marginal cost to zero at the price of self-hosting.
 
-## 12. Related Ideas
+## 13. Related Ideas
 
-- [01 · AI Pipeline Failure Analyzer](../01-ai-pipeline-failure-analyzer/README.md)
-- [07 · AI GitHub Actions Debugger](../07-ai-github-actions-debugger/README.md)
-- [35 · AI Anomaly Investigation Agent](../35-ai-anomaly-investigation-agent/README.md)
+- [01 · AI Pipeline Failure Analyzer](../../01-ai-pipeline-failure-analyzer/README.md)
+- [07 · AI GitHub Actions Debugger](../../07-ai-github-actions-debugger/README.md)
+- [35 · AI Anomaly Investigation Agent](../../35-ai-anomaly-investigation-agent/README.md)

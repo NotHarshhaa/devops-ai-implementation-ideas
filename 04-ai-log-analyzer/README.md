@@ -36,7 +36,7 @@ Logs hold the answer to almost every operational question, but extracting it req
 
 ## 💡 Proposed Solution
 
-A log analysis service sits between engineers (or the alert pipeline) and the log store. It first narrows scope — service, time window, template clustering — then retrieves a compact, representative sample and metadata, and lets an LLM answer the question with an generated query, a summary, and deep links. The generated query is always shown so humans can verify and rerun it themselves.
+A log analysis service sits between engineers (or the alert pipeline) and the log store. It first narrows scope — service, time window, template clustering — then retrieves a compact, representative sample and metadata, and lets an LLM answer the question with a generated query, a summary, and deep links. The generated query is always shown so humans can verify and rerun it themselves.
 
 ### Workflow
 
@@ -149,4 +149,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

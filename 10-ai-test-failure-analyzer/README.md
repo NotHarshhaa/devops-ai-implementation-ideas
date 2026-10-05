@@ -15,7 +15,7 @@
 
 ## 📌 Problem
 
-A red test suite is ambiguous: is it a real regression, a flaky test, or a broken environment? Teams burn triage time and lose trust in CI answering wrong.
+A red test suite is ambiguous: is it a real regression, a flaky test, or a broken environment? Teams burn triage time and lose trust in CI when failures are misclassified or repeatedly re-run.
 
 * Flaky tests erode trust; engineers reflexively re-run instead of investigating.
 * Environment failures (timeouts, services down, resource limits) get filed as product bugs.
@@ -30,7 +30,7 @@ A red test suite is ambiguous: is it a real regression, a flaky test, or a broke
 | --- | --- |
 | Failure classification | bug vs. flake vs. environment vs. test-debt, with confidence and evidence from stack traces and history |
 | Flake detection | compares failure history, pass-rate variance, and timing to quantify flakiness |
-| Root-cause hints | points to the commit or change most likely responsible (test-aware blame) |
+| Root-cause hints | points to the commit or code change most likely responsible via test-aware git blame and stack-frame correlation |
 | Routing | assigns to the owning team via code ownership and test maps |
 
 ## 💡 Proposed Solution
@@ -125,6 +125,7 @@ Exposed to the model with scoped, read-first permissions:
 
 * Auto-flaky-fix agent: propose determinism fixes (async waits, clock injection) as PRs.
 * Cross-repo flake correlation for shared libraries.
+* Test impact analysis (TIA) integration: run only the tests impacted by the diff while maintaining safety.
 
 ## 🔗 Related Ideas
 
@@ -134,4 +135,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

@@ -54,7 +54,29 @@ A Jenkins plugin/CLI companion fetches the failed build's console log (and stage
 4. The model returns failure class, root cause, and fix snippet.
 5. Results are attached to the build and posted to Slack.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "build_id": "job/backend-pipeline/142",
+  "stage": "Deploy to Staging",
+  "step": "sh: ansible-playbook",
+  "failure_category": "agent_offline_or_credentials",
+  "root_cause": "SSH private key credential 'staging-deployer-key' expired or failed host key verification.",
+  "evidence_lines": [
+    "Host key verification failed.",
+    "fatal: [stage-app-01.internal]: UNREACHABLE! => {"msg": "Failed to connect to the host via ssh"}"
+  ],
+  "suggested_fix": {
+    "description": "Renew staging SSH host keys in Jenkins global credentials store or update known_hosts on build worker agent 'node-linux-04'",
+    "jenkinsfile_patch": null
+  }
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -66,7 +88,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | Model routing & AI gateways | LiteLLM · OpenRouter · Portkey · Kong AI Gateway · Cloudflare AI Gateway | provider-agnostic routing with fallbacks, budgets, caching, and audit logs |
 | AI observability & evaluation | Langfuse · Arize Phoenix · LangSmith · W&B Weave · OpenTelemetry GenAI conventions · promptfoo | tracing of every model and tool call, cost/latency tracking, prompt regression evals |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -74,32 +96,33 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `stage/step graph`
 * `node and agent status`
 * `plugin versions`
+* `build agent environment variables and executor labels`
 * `Jenkinsfile (if pipeline)`
 * `triggering commit`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 Advisory only. Retry/build decisions stay with the engineer or existing retry policies.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
 * Console logs frequently echo secrets despite masking: redact aggressively and cap what leaves the network; use local models for sensitive controllers.
 * Read-only Jenkins API user; never expose credentials or apply rights to the analyzer.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 Start as a stateless service (or even a CLI) invoked by webhooks, schedules, or chat commands. Containerize it, give it read-only credentials scoped to one system, and only graduate to a long-running agent with an approval queue once precision is trusted.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Events are batch-shaped and bursts follow working hours, so spend is spiky but low. Mini/flash-class models typically handle triage at a fraction of a cent per event; a frontier model is reserved for the deep-analysis step, and an open-weight model via Ollama or vLLM can bring marginal cost to zero at the price of self-hosting.
 
-## 12. Related Ideas
+## 13. Related Ideas
 
-- [01 · AI Pipeline Failure Analyzer](../01-ai-pipeline-failure-analyzer/README.md)
-- [07 · AI GitHub Actions Debugger](../07-ai-github-actions-debugger/README.md)
-- [04 · AI Log Analyzer](../04-ai-log-analyzer/README.md)
+- [01 · AI Pipeline Failure Analyzer](../../01-ai-pipeline-failure-analyzer/README.md)
+- [07 · AI GitHub Actions Debugger](../../07-ai-github-actions-debugger/README.md)
+- [04 · AI Log Analyzer](../../04-ai-log-analyzer/README.md)

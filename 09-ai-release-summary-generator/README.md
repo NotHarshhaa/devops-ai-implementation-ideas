@@ -34,7 +34,7 @@ Release notes are a chore, so they're skipped or useless: a wall of merge-commit
 
 ## 💡 Proposed Solution
 
-On tag/release, the generator collects PRs, commit messages, linked issues, and labels for the release range, then produces structured notes per audience into the GitHub Release, a changelog file (PR), and a Slack announcement draft — with humans editing before anything customer-facing goes out.
+On tag/release, the generator collects PRs, commit messages, linked issues, and labels for the release range, then produces structured notes per audience for the GitHub Release, a changelog file (PR), and a Slack announcement draft — with humans editing before anything customer-facing goes out.
 
 ### Workflow
 
@@ -100,6 +100,7 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 * `linked issues`
 * `commit messages`
 * `semantic version delta`
+* `semantic versioning tags & milestone metadata`
 * `past release notes style`
 * `CODEOWNERS for review routing`
 
@@ -133,4 +134,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

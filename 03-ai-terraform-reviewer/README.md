@@ -31,7 +31,7 @@ Terraform changes are small diffs with enormous blast radius, and the humans rev
 | Plan interpretation | translates `terraform show -json` plans into human summaries: what is created, replaced, destroyed, and why |
 | Risk assessment | flags destructive actions, public exposure, IAM broadening, and tagged-for-deletion resources with severity |
 | Convention checking | compares the change against org standards (modules, naming, tagging) retrieved from a knowledge base |
-| Cost reasoning | combines Infracost-style estimates with the plan to explain monthly-impact of the change |
+| Cost reasoning | combines Infracost-style estimates with the plan to explain the monthly cost impact of the change |
 | Actionable comments | posts inline PR comments with suggested corrected HCL |
 
 ## 💡 Proposed Solution
@@ -115,7 +115,7 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 ## 📥 Context & Data Sources
 
 * `terraform plan JSON`
-* ``.tf` diff`
+* `Terraform file (.tf) diff`
 * `module source and registry metadata`
 * `scanner findings`
 * `cost estimates`
@@ -158,4 +158,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*
