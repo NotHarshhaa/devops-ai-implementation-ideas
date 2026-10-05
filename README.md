@@ -1,12 +1,20 @@
-# 🤖 DevOps AI Implementation Ideas
+<h1 align="center">🤖 DevOps AI Implementation Ideas</h1>
 
-> A collection of practical ideas, architectures, and implementation concepts for integrating AI into DevOps, Cloud, Platform Engineering, SRE, CI/CD, Infrastructure, and Security workflows.
+<p align="center">
+  <em>A collection of practical ideas, architectures, and implementation concepts for integrating AI into DevOps, Cloud, Platform Engineering, SRE, CI/CD, Infrastructure, and Security workflows.</em>
+</p>
 
-[![Ideas](https://img.shields.io/badge/Ideas-50%20documented-blue)](#-idea-catalog)
-[![Status](https://img.shields.io/badge/Status-Idea%20%26%20Architecture-orange)](#-project-status)
-[![AI](https://img.shields.io/badge/AI-Multi--Platform-purple)](#-ai-platforms)
-[![DevOps](https://img.shields.io/badge/Focus-DevOps-green)](#-focus-areas)
-[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
+<p align="center">
+  <a href="#-idea-catalog"><img src="https://img.shields.io/badge/Ideas-50%20documented-blue" alt="Ideas"></a>
+  <a href="#-project-status"><img src="https://img.shields.io/badge/Status-Idea%20%26%20Architecture-orange" alt="Status"></a>
+  <a href="#-ai-platforms"><img src="https://img.shields.io/badge/AI-Multi--Platform-purple" alt="AI"></a>
+  <a href="#-focus-areas"><img src="https://img.shields.io/badge/Focus-DevOps-green" alt="DevOps"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow" alt="License"></a>
+</p>
+
+<p align="center">
+  <img src="assets/banner.png" alt="DevOps AI Implementation Ideas" width="100%" />
+</p>
 
 ---
 
