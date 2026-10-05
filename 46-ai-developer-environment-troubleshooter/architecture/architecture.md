@@ -53,7 +53,45 @@ A CLI/IDE-resident assistant (Claude Code / Copilot / Cline-class tools, or a cu
 3. A diagnosis and ordered fix plan is presented.
 4. Outcomes (fixed/not) and issue classes feed org improvements.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "diagnostic_id": "devdoctor-local-9182",
+  "os": "macOS Sonoma (Darwin arm64)",
+  "workspace": "web-frontend-monorepo",
+  "reported_symptom": "Error: listen EADDRINUSE: address already in use :::3000",
+  "inspected_local_environment": {
+    "port_3000_status": "OCCUPIED",
+    "occupying_process": {
+      "command": "node /Users/developer/projects/web-frontend/server.js",
+      "pid": 84192,
+      "status": "ORPHANED_BACKGROUND_PROCESS"
+    },
+    "docker_daemon_status": "RUNNING",
+    "nodejs_version": "v20.12.2 (matches .nvmrc)"
+  },
+  "root_cause_explanation": "A previous development session left an orphaned Node.js server process running in the background holding TCP port 3000.",
+  "guided_remediation_steps": [
+    {
+      "step": 1,
+      "command": "kill -9 84192",
+      "description": "Terminate the orphaned background Node process holding port 3000.",
+      "destructive": false
+    },
+    {
+      "step": 2,
+      "command": "pnpm dev",
+      "description": "Relaunch the local development server.",
+      "destructive": false
+    }
+  ]
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -65,7 +103,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | RAG stack | pgvector · Qdrant · Weaviate · OpenSearch k-NN; embeddings from OpenAI, Cohere Embed, or open BGE-M3 | retrieval over runbooks, docs, wikis, past incidents, and changelogs |
 | AI observability & evaluation | Langfuse · Arize Phoenix · LangSmith · W&B Weave · OpenTelemetry GenAI conventions · promptfoo | tracing of every model and tool call, cost/latency tracking, prompt regression evals |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -75,29 +113,29 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `known issue database`
 * `recent repo setup changes`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 Runs on the developer's machine with their consent; destructive commands (docker system prune) require explicit confirmation and show alternatives.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
 * Local inspection is privacy-sensitive: explicit scope, nothing leaves the machine except redacted error context.
 * Never exfiltrate env vars/secrets; metadata (presence, not value) only.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 Start as a stateless service (or even a CLI) invoked by webhooks, schedules, or chat commands. Containerize it, give it read-only credentials scoped to one system, and only graduate to a long-running agent with an approval queue once precision is trusted.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Events are batch-shaped and bursts follow working hours, so spend is spiky but low. Mini/flash-class models typically handle triage at a fraction of a cent per event; a frontier model is reserved for the deep-analysis step, and an open-weight model via Ollama or vLLM can bring marginal cost to zero at the price of self-hosting.
 
-## 12. Related Ideas
+## 13. Related Ideas
 
-- [43 · AI DevOps Documentation Generator](../43-ai-devops-documentation-generator/README.md)
-- [44 · AI Repository Infrastructure Analyzer](../44-ai-repository-infrastructure-analyzer/README.md)
-- [12 · AI Deployment Troubleshooting Agent](../12-ai-deployment-troubleshooting-agent/README.md)
+- [43 · AI DevOps Documentation Generator](../../43-ai-devops-documentation-generator/README.md)
+- [44 · AI Repository Infrastructure Analyzer](../../44-ai-repository-infrastructure-analyzer/README.md)
+- [12 · AI Deployment Troubleshooting Agent](../../12-ai-deployment-troubleshooting-agent/README.md)

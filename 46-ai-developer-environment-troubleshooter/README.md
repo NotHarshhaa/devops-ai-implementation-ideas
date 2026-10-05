@@ -108,7 +108,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Local inspection commands (read-only by default)
+* Local System Diagnostic Runner (docker, port, process, file checks)
+* Redacted Error Log Analyzer
+* Developer Environment Knowledge Base (RAG)
+* Shell Remediation Command Generator
 
 ## ✅ Expected Benefits
 
@@ -134,4 +137,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

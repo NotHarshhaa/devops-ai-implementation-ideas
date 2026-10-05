@@ -109,8 +109,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Catalog APIs (propose; no silent writes)
-* VCS PR creation
+* Service Catalog REST API (Backstage / OpsLevel / Port read & propose)
+* VCS Activity & CODEOWNERS Analyzer (GitHub / GitLab MCP)
+* On-Call Schedule API (PagerDuty / Opsgenie)
+* Cloud Resource Tagging Inventory API
 
 ## ✅ Expected Benefits
 
@@ -136,4 +138,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

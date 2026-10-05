@@ -53,7 +53,43 @@ An analyzer that reads a repo end-to-end (CI configs, manifests, Dockerfiles, Ia
 3. Each repo gets a narrative and gap report.
 4. Fleet views reveal patterns, risks, and migration scope.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "repository": "org/customer-cart-service",
+  "analysis_timestamp": "2026-10-06T00:05:00Z",
+  "infrastructure_profile": {
+    "language": "Go 1.22",
+    "build_system": "Dockerfile (multi-stage Go builder -> distroless)",
+    "ci_cd_platform": "GitHub Actions",
+    "orchestration": "Kubernetes Deployment",
+    "cloud_dependencies": [
+      "AWS DynamoDB",
+      "AWS SQS",
+      "AWS ElastiCache Redis"
+    ]
+  },
+  "standards_gap_analysis": [
+    {
+      "standard": "POD_DISRUPTION_BUDGET",
+      "status": "MISSING",
+      "severity": "HIGH",
+      "details": "Repository defines 3 replicas in deployment.yaml but has no PodDisruptionBudget manifest."
+    },
+    {
+      "standard": "READINESS_LIVENESS_PROBES",
+      "status": "COMPLIANT",
+      "details": "Both liveness and readiness probes defined with appropriate initialDelaySeconds."
+    }
+  ],
+  "deployment_story_narrative": "Code pushed to main triggers GitHub Actions workflow `ci.yml` which executes `golangci-lint`, runs tests, builds a multi-arch container image pushed to ECR, and automatically creates an image-updater PR against the `gitops-deployments` repository."
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -64,7 +100,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | RAG stack | pgvector · Qdrant · Weaviate · OpenSearch k-NN; embeddings from OpenAI, Cohere Embed, or open BGE-M3 | retrieval over runbooks, docs, wikis, past incidents, and changelogs |
 | Model routing & AI gateways | LiteLLM · OpenRouter · Portkey · Kong AI Gateway · Cloudflare AI Gateway | provider-agnostic routing with fallbacks, budgets, caching, and audit logs |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -75,29 +111,29 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `existing docs`
 * `org standards`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 Read-only analysis and reporting.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
 * Repo contents are sensitive: restrict to approved providers/local models; respect access permissions strictly.
 * Aggregate views must not leak one team's code details to another.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 Start as a stateless service (or even a CLI) invoked by webhooks, schedules, or chat commands. Containerize it, give it read-only credentials scoped to one system, and only graduate to a long-running agent with an approval queue once precision is trusted.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Events are batch-shaped and bursts follow working hours, so spend is spiky but low. Mini/flash-class models typically handle triage at a fraction of a cent per event; a frontier model is reserved for the deep-analysis step, and an open-weight model via Ollama or vLLM can bring marginal cost to zero at the price of self-hosting.
 
-## 12. Related Ideas
+## 13. Related Ideas
 
-- [43 · AI DevOps Documentation Generator](../43-ai-devops-documentation-generator/README.md)
-- [47 · AI Internal Developer Platform Assistant](../47-ai-internal-developer-platform-assistant/README.md)
-- [45 · AI Pull Request Infrastructure Reviewer](../45-ai-pull-request-infrastructure-reviewer/README.md)
+- [43 · AI DevOps Documentation Generator](../../43-ai-devops-documentation-generator/README.md)
+- [47 · AI Internal Developer Platform Assistant](../../47-ai-internal-developer-platform-assistant/README.md)
+- [45 · AI Pull Request Infrastructure Reviewer](../../45-ai-pull-request-infrastructure-reviewer/README.md)

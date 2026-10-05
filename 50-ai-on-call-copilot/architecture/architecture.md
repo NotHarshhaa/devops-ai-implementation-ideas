@@ -60,7 +60,45 @@ A copilot service that unifies the catalog's building blocks behind one chat/CLI
 4. Comms drafts keep stakeholders current; resolution records feed learning.
 5. Outcomes tune runbooks and evaluation sets for the next shift.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "copilot_session_id": "oncall-session-2026-10-06-0042",
+  "incident_reference": "INC-84920",
+  "alert_context": {
+    "alert_name": "KafkaConsumerGroupLagSurge",
+    "affected_service": "order-event-worker",
+    "severity": "SEV-1",
+    "current_lag_messages": 384000
+  },
+  "autonomous_pre_investigation": {
+    "duration_seconds": 22,
+    "telemetry_findings": "Worker pods CPU utilization normal (42%), but thread dump indicates 95% of worker threads blocked in WAITING state on RDS Aurora write lock.",
+    "root_cause_hypothesis": "Unindexed transaction table query in migration 0089 holding exclusive table lock on orders table."
+  },
+  "conversational_actions_executed": [
+    {
+      "operator_prompt": "Check RDS active locks on db-orders-aurora",
+      "tool_used": "aws_rds_describe_db_instances",
+      "summary": "Aurora PostgreSQL instance db-orders-aurora write latency spiked to 480ms with 18 active table lock waits."
+    }
+  ],
+  "supervised_mitigation_plan": {
+    "action_tier": "PRE_APPROVED_RUNBOOK",
+    "runbook_name": "Cancel Long-Running Database Lock Query",
+    "sanctioned_command": "SELECT pg_cancel_backend(pid) FROM pg_stat_activity WHERE query LIKE '%ALTER TABLE orders ADD CONSTRAINT%' AND state = 'active';",
+    "safety_checks_passed": true,
+    "approval_status": "APPROVED_BY_OPERATOR",
+    "execution_audit_id": "AUDIT-K8S-OPS-91823"
+  },
+  "shift_handover_summary": "Mitigated Sev-1 Kafka consumer lag surge on order-event-worker by terminating blocking DDL query on RDS Aurora. Action items filed under INFRA-4891."
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -75,7 +113,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | AI observability & evaluation | Langfuse · Arize Phoenix · LangSmith · W&B Weave · OpenTelemetry GenAI conventions · promptfoo | tracing of every model and tool call, cost/latency tracking, prompt regression evals |
 | Kubernetes AI tooling (CNCF) | K8sGPT · HolmesGPT · kagent · kubectl-ai | open-source analyzers and agents to build on instead of starting from scratch |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -85,11 +123,11 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `past engagements and postmortems`
 * `approval policies per service`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 The defining design constraint: read is free, write is confirmed, runbooks are pre-approved per-step by their owners. The copilot is a junior teammate with a fast, auditable approval loop — never an autonomous operator.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
 * Tiered permissions are the core design: no blanket credentials, per-tool scoping, deny-by-default writes.
 * Every action (model call, tool call, approval, execution) is immutably logged — the audit trail is the product.
@@ -97,27 +135,27 @@ The defining design constraint: read is free, write is confirmed, runbooks are p
 * Break-glass path documented and drilled: what happens if the copilot is down or wrong.
 * Sensitive services can require two-person approval even for runbook tiers.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 A resident service near your incident tooling with the MCP gateway and policy engine. Session state is durable (investigations span hours); tool credentials are brokered per-tier. Start read-only for one team, graduate action tiers per service with measured trust.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Pages are infrequent; each engagement is deep. Hybrid routing (cheap models for chat, frontier for investigation) plus strict tool-call budgets keep per-incident cost in single-digit dollars — versus the on-call hour it compresses.
 
-## 12. Alternative Approaches
+## 13. Alternative Approaches
 
 * Build on kagent/HolmesGPT as the runtime and add the policy/approval layer, rather than starting from scratch.
 * CLI-first copilot for teams that live in terminals, Slack app for everyone else — same tool belt.
 * Start as pure enrichment (idea 30) and grow into the full copilot as trust data accumulates.
 
-## 13. Related Ideas
+## 14. Related Ideas
 
-- [05 · AI Incident Investigator](../05-ai-incident-investigator/README.md)
-- [30 · AI Alert Investigation Assistant](../30-ai-alert-investigation-assistant/README.md)
-- [31 · AI Incident Summarizer](../31-ai-incident-summarizer/README.md)
-- [19 · AI Cluster Operations Agent](../19-ai-cluster-operations-agent/README.md)
+- [05 · AI Incident Investigator](../../05-ai-incident-investigator/README.md)
+- [30 · AI Alert Investigation Assistant](../../30-ai-alert-investigation-assistant/README.md)
+- [31 · AI Incident Summarizer](../../31-ai-incident-summarizer/README.md)
+- [19 · AI Cluster Operations Agent](../../19-ai-cluster-operations-agent/README.md)

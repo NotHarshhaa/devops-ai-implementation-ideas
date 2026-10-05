@@ -108,7 +108,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* VCS read APIs
+* VCS Tree & Manifest Ingestion API (read-only)
+* Container & Orchestration Spec Parser
+* Backstage Catalog Entity Generator
+* Fleet Compliance & Standards Evaluator
 
 ## ✅ Expected Benefits
 
@@ -134,4 +137,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

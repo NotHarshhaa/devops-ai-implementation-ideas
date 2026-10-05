@@ -109,8 +109,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Backstage APIs via MCP (scaffolder, catalog read; writes produce standard PRs)
-* Docs search
+* Backstage REST API & Scaffolder MCP (catalog read, template parameterization)
+* Software Scorecard & Production Readiness API
+* TechDocs Vector Search API
+* Slack / Teams Interactive Assistant Bot
 
 ## ✅ Expected Benefits
 
@@ -137,4 +139,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

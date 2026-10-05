@@ -116,8 +116,9 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Read-only evidence tools (SIEM, cloud, k8s)
-* No mutation tools in security mode
+* SIEM & Security Lake Query API (Splunk / Chronicle / Elastic Security read-only)
+* Cloud & Kubernetes Forensics MCP (read-only snapshots)
+* Incident Response Ticketing & Evidence Locker API
 
 ## ✅ Expected Benefits
 
@@ -145,4 +146,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

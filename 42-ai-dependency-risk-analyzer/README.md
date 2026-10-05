@@ -109,9 +109,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Code search (read)
-* PR creation
-* CI trigger (read results)
+* Dependency Graph & Vulnerability Ingestion API (Dependabot / Renovate / Snyk)
+* VCS Code Search & AST Reachability Analyzer
+* OSV & GitHub Advisory Database API
+* VCS PR Creation (GitHub / GitLab MCP)
 
 ## ✅ Expected Benefits
 
@@ -137,4 +138,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

@@ -7506,8 +7506,9 @@
       "IR playbooks"
     ],
     "tools": [
-      "Read-only evidence tools (SIEM, cloud, k8s)",
-      "No mutation tools in security mode"
+      "SIEM & Security Lake Query API (Splunk / Chronicle / Elastic Security read-only)",
+      "Cloud & Kubernetes Forensics MCP (read-only snapshots)",
+      "Incident Response Ticketing & Evidence Locker API"
     ],
     "benefits": [
       "Fewer containment mistakes; explicit tradeoffs instead of reflexes.",
@@ -7541,7 +7542,8 @@
         "slug": "ai-cloud-misconfiguration-analyzer"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ Security incident declared                         │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Response plan drafted (containment · evidence)     │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Read-only evidence collection                      │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← preservation hygiene\n┌────────────────────────────────────────────────────┐\n│ Containment options + blast radius                 │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Comms drafts → human approval                      │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Response record for review                         │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ Security incident declared                         │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Response plan drafted (containment · evidence)     │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Read-only evidence collection                      │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← preservation hygiene\n┌────────────────────────────────────────────────────┐\n│ Containment options + blast radius                 │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Comms drafts → human approval                      │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Response record for review                         │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"security_incident_id\": \"SEC-INC-2026-10-04\",\n  \"threat_level\": \"HIGH\",\n  \"attack_vector\": \"COMPROMISED_IAM_CREDENTIALS\",\n  \"containment_status\": \"CONTAINMENT_OPTIONS_PROPOSED\",\n  \"compromised_entities\": {\n    \"iam_principal\": \"arn:aws:iam::123456789012:user/build-pipeline-service-account\",\n    \"source_ip_address\": \"198.51.100.44\",\n    \"threat_actor_infrastructure\": \"Known commercial VPN / Tor exit node\"\n  },\n  \"evaluated_containment_options\": [\n    {\n      \"option\": \"REVOKE_IAM_SESSIONS_AND_ATTACH_DENY_ALL\",\n      \"side_effects\": \"Halts active deployments across all 12 backend microservices until new credentials are provisioned in AWS Secrets Manager.\",\n      \"forensics_prerequisite\": \"Export and hash active STS session tokens and CloudTrail events for preceding 24 hours.\",\n      \"recommended_action\": \"EXECUTE_AFTER_FORENSIC_SNAPSHOT\"\n    },\n    {\n      \"option\": \"ISOLATE_BUILD_RUNNER_VPC\",\n      \"side_effects\": \"Sever build runner outbound traffic; queued release artifacts will be delayed.\",\n      \"forensics_prerequisite\": \"Capture volatile RAM snapshot and disk image of runner container host.\",\n      \"recommended_action\": \"OPTIONAL_STANDBY\"\n    }\n  ],\n  \"evidence_preservation_manifest\": [\n    {\n      \"artifact_name\": \"cloudtrail_audit_log_dump_20261005.json\",\n      \"sha256\": \"4b8e9f0a1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f\",\n      \"storage_location\": \"s3://forensic-evidence-secure-123456789012/sec-inc-2026-10-04/\",\n      \"chain_of_custody_verified\": true\n    }\n  ],\n  \"comms_and_compliance_requirements\": {\n    \"gdpr_72hr_notice_required\": false,\n    \"internal_stakeholder_briefing_drafted\": true\n  }\n}"
   },
   {
     "num": 42,
@@ -7687,9 +7689,10 @@
       "dependency maintenance signals"
     ],
     "tools": [
-      "Code search (read)",
-      "PR creation",
-      "CI trigger (read results)"
+      "Dependency Graph & Vulnerability Ingestion API (Dependabot / Renovate / Snyk)",
+      "VCS Code Search & AST Reachability Analyzer",
+      "OSV & GitHub Advisory Database API",
+      "VCS PR Creation (GitHub / GitLab MCP)"
     ],
     "benefits": [
       "Dependency risk handled in minutes per alert instead of bulk dismissal.",
@@ -7721,7 +7724,8 @@
         "slug": "ai-github-actions-debugger"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ Dependency alerts ingest (Dependabot · Renovate)   │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Repo usage analysis                                │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Upgrade path + breaking-change summary             │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Explained queue · tiered PRs                       │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ CI feedback loop                                   │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ Dependency alerts ingest (Dependabot · Renovate)   │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Repo usage analysis                                │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Upgrade path + breaking-change summary             │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Explained queue · tiered PRs                       │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ CI feedback loop                                   │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"dependency_name\": \"axios\",\n  \"current_version\": \"0.21.1\",\n  \"recommended_version\": \"1.7.4\",\n  \"advisory_id\": \"GHSA-cph5-m8f7-6c5x\",\n  \"cve_id\": \"CVE-2023-45857\",\n  \"reachability_evaluation\": {\n    \"is_vulnerable_code_reachable\": true,\n    \"vulnerable_function\": \"followRedirects()\",\n    \"call_site_file\": \"src/clients/payment_gateway_client.ts\",\n    \"line_number\": 92,\n    \"evidence_snippet\": \"return axios.post(url, payload, { maxRedirects: 5 });\"\n  },\n  \"upgrade_path_analysis\": {\n    \"upgrade_strategy\": \"DIRECT_MINOR_BUMP\",\n    \"breaking_changes_detected\": false,\n    \"migration_notes\": \"axios v1.7.4 maintains API parity with v0.21 for standard JSON post/get invocations while patching cross-domain cookie leakage on redirects.\"\n  },\n  \"proposed_pull_request\": {\n    \"branch\": \"security/upgrade-axios-1.7.4\",\n    \"target_file\": \"package.json\",\n    \"diff\": \"@@ -14,1 +14,1 @@\n-    \"axios\": \"0.21.1\",\n+    \"axios\": \"1.7.4\",\",\n    \"ci_test_status\": \"PASSED (all 148 unit & integration tests green)\"\n  }\n}"
   },
   {
     "num": 43,
@@ -7862,8 +7866,10 @@
       "git history for 'why' context"
     ],
     "tools": [
-      "VCS (read; PR write)",
-      "CI config parsing"
+      "VCS Code & Config Ingestion API (read-only)",
+      "CI/CD & Dockerfile Schema Parser",
+      "VCS PR Creation (GitHub / GitLab MCP)",
+      "Internal Developer Portal / TechDocs Sync API"
     ],
     "benefits": [
       "High-traffic docs stay current automatically.",
@@ -7895,7 +7901,8 @@
         "slug": "natural-language-to-terraform"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ Repo + CI config indexing                          │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Doc-dependency mapping                             │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Regeneration on change → PRs                       │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Chat Q&A with citations                            │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Doc-gap tickets from questions                     │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ Repo + CI config indexing                          │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Doc-dependency mapping                             │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Regeneration on change → PRs                       │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Chat Q&A with citations                            │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Doc-gap tickets from questions                     │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"repository\": \"org/payment-ledger\",\n  \"documentation_suite\": \"SERVICE_OPERATIONS_AND_DEPLOYMENT_GUIDE\",\n  \"drift_detected\": true,\n  \"extracted_infrastructure_facts\": {\n    \"runtime\": \"Node.js 20.12 (Distroless)\",\n    \"package_manager\": \"pnpm\",\n    \"deployment_target\": \"Kubernetes (Argo CD GitOps)\",\n    \"exposed_ports\": [\n      3000,\n      9090\n    ],\n    \"mandatory_environment_variables\": [\n      \"DATABASE_URL\",\n      \"KAFKA_BROKERS\",\n      \"STRIPE_API_KEY\"\n    ]\n  },\n  \"generated_documentation_sections\": {\n    \"local_development\": \"# Local Setup\nRun `pnpm install` followed by `docker compose up -d postgres kafka`. Start local dev via `pnpm dev`.\",\n    \"deployment_and_rollback\": \"# Deployment & Rollback\nDeployments are managed by Argo CD. To emergency rollback, revert the image tag commit in `gitops-prod/apps/payment-ledger/values.yaml`.\"\n  },\n  \"interactive_qa_index\": [\n    {\n      \"question\": \"What port does the health check probe listen on?\",\n      \"answer\": \"Port 3000 on path /healthz as configured in `k8s/deployment.yaml:L34`.\",\n      \"confidence\": 0.99\n    }\n  ]\n}"
   },
   {
     "num": 44,
@@ -8032,7 +8039,10 @@
       "org standards"
     ],
     "tools": [
-      "VCS read APIs"
+      "VCS Tree & Manifest Ingestion API (read-only)",
+      "Container & Orchestration Spec Parser",
+      "Backstage Catalog Entity Generator",
+      "Fleet Compliance & Standards Evaluator"
     ],
     "benefits": [
       "Hours of repo archaeology compressed to minutes.",
@@ -8064,7 +8074,8 @@
         "slug": "ai-pull-request-infrastructure-reviewer"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ Repo scan (CI · IaC · manifests)                   │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Structured infrastructure profile                  │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Deployment-story narrative                         │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Gap analysis vs. standards                         │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Fleet aggregation dashboard                        │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ Repo scan (CI · IaC · manifests)                   │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Structured infrastructure profile                  │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Deployment-story narrative                         │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Gap analysis vs. standards                         │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Fleet aggregation dashboard                        │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"repository\": \"org/customer-cart-service\",\n  \"analysis_timestamp\": \"2026-10-06T00:05:00Z\",\n  \"infrastructure_profile\": {\n    \"language\": \"Go 1.22\",\n    \"build_system\": \"Dockerfile (multi-stage Go builder -> distroless)\",\n    \"ci_cd_platform\": \"GitHub Actions\",\n    \"orchestration\": \"Kubernetes Deployment\",\n    \"cloud_dependencies\": [\n      \"AWS DynamoDB\",\n      \"AWS SQS\",\n      \"AWS ElastiCache Redis\"\n    ]\n  },\n  \"standards_gap_analysis\": [\n    {\n      \"standard\": \"POD_DISRUPTION_BUDGET\",\n      \"status\": \"MISSING\",\n      \"severity\": \"HIGH\",\n      \"details\": \"Repository defines 3 replicas in deployment.yaml but has no PodDisruptionBudget manifest.\"\n    },\n    {\n      \"standard\": \"READINESS_LIVENESS_PROBES\",\n      \"status\": \"COMPLIANT\",\n      \"details\": \"Both liveness and readiness probes defined with appropriate initialDelaySeconds.\"\n    }\n  ],\n  \"deployment_story_narrative\": \"Code pushed to main triggers GitHub Actions workflow `ci.yml` which executes `golangci-lint`, runs tests, builds a multi-arch container image pushed to ECR, and automatically creates an image-updater PR against the `gitops-deployments` repository.\"\n}"
   },
   {
     "num": 45,
@@ -8211,8 +8222,10 @@
       "org conventions"
     ],
     "tools": [
-      "VCS PR API (comments)",
-      "Config inventory (read)"
+      "VCS PR & Diff Analysis API (GitHub / GitLab MCP)",
+      "Deployment Manifest & Topology Inventory (read-only)",
+      "Environment Variable & Secret Metadata Registry (names/types only)",
+      "PR Inline Comment Publisher"
     ],
     "benefits": [
       "Fewer deploy-breaking surprises; review catches what CI can't.",
@@ -8244,7 +8257,8 @@
         "slug": "ai-repository-infrastructure-analyzer"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ PR opened / updated                                │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Diff classifier (config · deps · endpoints)        │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Deployment context enrichment                      │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← envs · manifests · catalog\n┌────────────────────────────────────────────────────┐\n│ Consequence review + inline comments               │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Human review · merge                               │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ PR opened / updated                                │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Diff classifier (config · deps · endpoints)        │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Deployment context enrichment                      │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← envs · manifests · catalog\n┌────────────────────────────────────────────────────┐\n│ Consequence review + inline comments               │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Human review · merge                               │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"pull_request_number\": 482,\n  \"repository\": \"org/checkout-service\",\n  \"author\": \"@dev-jordan\",\n  \"infrastructure_verdict\": \"ACTION_REQUIRED_BEFORE_MERGE\",\n  \"detected_consequences\": [\n    {\n      \"type\": \"UNDEFINED_ENVIRONMENT_VARIABLE\",\n      \"severity\": \"DEPLOYMENT_BLOCKER\",\n      \"file\": \"src/config/checkout.ts\",\n      \"line\": 14,\n      \"finding\": \"PR references `process.env.CHECKOUT_CIRCUIT_BREAKER_THRESHOLD`, but this variable is not declared in `helm/templates/configmap.yaml` or staging/prod Vault secret paths.\",\n      \"suggested_fix\": \"Add `CHECKOUT_CIRCUIT_BREAKER_THRESHOLD` with a default value of '5' to `helm/values.yaml`.\"\n    },\n    {\n      \"type\": \"BLOCKING_DATABASE_MIGRATION\",\n      \"severity\": \"OPERATIONAL_RISK\",\n      \"file\": \"migrations/20261005_add_orders_idx.sql\",\n      \"line\": 1,\n      \"finding\": \"Executing `CREATE INDEX idx_orders_customer_id ON orders(customer_id);` without `CONCURRENTLY` will acquire an exclusive table lock on 14 million rows in production.\",\n      \"suggested_fix\": \"Modify to `CREATE INDEX CONCURRENTLY idx_orders_customer_id ON orders(customer_id);`.\"\n    }\n  ],\n  \"automated_comment_posted\": true\n}"
   },
   {
     "num": 46,
@@ -8385,7 +8399,10 @@
       "recent repo setup changes"
     ],
     "tools": [
-      "Local inspection commands (read-only by default)"
+      "Local System Diagnostic Runner (docker, port, process, file checks)",
+      "Redacted Error Log Analyzer",
+      "Developer Environment Knowledge Base (RAG)",
+      "Shell Remediation Command Generator"
     ],
     "benefits": [
       "Developers unblocked in minutes without interrupting teammates.",
@@ -8417,7 +8434,8 @@
         "slug": "ai-deployment-troubleshooting-agent"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ Error pasted / devdoctor run                       │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Read-only local inspection                         │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← with consent\n┌────────────────────────────────────────────────────┐\n│ Diagnosis + reasoning                              │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Guided fix (reversible first)                      │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Org-wide pattern aggregation                       │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ Error pasted / devdoctor run                       │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Read-only local inspection                         │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← with consent\n┌────────────────────────────────────────────────────┐\n│ Diagnosis + reasoning                              │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Guided fix (reversible first)                      │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Org-wide pattern aggregation                       │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"diagnostic_id\": \"devdoctor-local-9182\",\n  \"os\": \"macOS Sonoma (Darwin arm64)\",\n  \"workspace\": \"web-frontend-monorepo\",\n  \"reported_symptom\": \"Error: listen EADDRINUSE: address already in use :::3000\",\n  \"inspected_local_environment\": {\n    \"port_3000_status\": \"OCCUPIED\",\n    \"occupying_process\": {\n      \"command\": \"node /Users/developer/projects/web-frontend/server.js\",\n      \"pid\": 84192,\n      \"status\": \"ORPHANED_BACKGROUND_PROCESS\"\n    },\n    \"docker_daemon_status\": \"RUNNING\",\n    \"nodejs_version\": \"v20.12.2 (matches .nvmrc)\"\n  },\n  \"root_cause_explanation\": \"A previous development session left an orphaned Node.js server process running in the background holding TCP port 3000.\",\n  \"guided_remediation_steps\": [\n    {\n      \"step\": 1,\n      \"command\": \"kill -9 84192\",\n      \"description\": \"Terminate the orphaned background Node process holding port 3000.\",\n      \"destructive\": false\n    },\n    {\n      \"step\": 2,\n      \"command\": \"pnpm dev\",\n      \"description\": \"Relaunch the local development server.\",\n      \"destructive\": false\n    }\n  ]\n}"
   },
   {
     "num": 47,
@@ -8559,8 +8577,10 @@
       "org terminology"
     ],
     "tools": [
-      "Backstage APIs via MCP (scaffolder, catalog read; writes produce standard PRs)",
-      "Docs search"
+      "Backstage REST API & Scaffolder MCP (catalog read, template parameterization)",
+      "Software Scorecard & Production Readiness API",
+      "TechDocs Vector Search API",
+      "Slack / Teams Interactive Assistant Bot"
     ],
     "benefits": [
       "Higher platform adoption; lower question load.",
@@ -8593,7 +8613,8 @@
         "slug": "ai-repository-infrastructure-analyzer"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ Developer question (Backstage · Slack)             │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Catalog + docs retrieval                           │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Self-service action (scaffold · request)           │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← same PRs as UI\n┌────────────────────────────────────────────────────┐\n│ Cited answers + IDP links                          │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Adoption + deflection analytics                    │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ Developer question (Backstage · Slack)             │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Catalog + docs retrieval                           │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Self-service action (scaffold · request)           │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← same PRs as UI\n┌────────────────────────────────────────────────────┐\n│ Cited answers + IDP links                          │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Adoption + deflection analytics                    │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"request_id\": \"idp-scaffold-req-3891\",\n  \"user_intent\": \"Provision a new Go backend service with PostgreSQL, Kafka consumer, and automatic scorecard compliance.\",\n  \"matched_template\": {\n    \"template_id\": \"backstage.io/v1beta3/templates/go-standard-backend\",\n    \"template_version\": \"2.4.0\",\n    \"maintainer\": \"@platform-engineering\"\n  },\n  \"resolved_scaffolder_parameters\": {\n    \"service_name\": \"payment-reconciliation-worker\",\n    \"owner_team\": \"billing-eng\",\n    \"database\": \"postgresql-v16\",\n    \"messaging\": \"kafka-event-consumer\",\n    \"tier\": \"tier-1-production\"\n  },\n  \"scorecard_preflight\": {\n    \"preflight_status\": \"PASSED (14/14 Goldengate readiness rules satisfied)\",\n    \"checks\": [\n      \"OpenTelemetry tracing SDK embedded\",\n      \"Health endpoint /healthz enabled\",\n      \"Container security context non-root enforced\"\n    ]\n  },\n  \"scaffolder_execution_output\": {\n    \"new_repository_url\": \"https://github.com/org/payment-reconciliation-worker\",\n    \"catalog_entity_url\": \"https://backstage.corp.internal/catalog/default/component/payment-reconciliation-worker\",\n    \"scaffold_pr_url\": \"https://github.com/org/payment-reconciliation-worker/pull/1\"\n  }\n}"
   },
   {
     "num": 48,
@@ -8734,8 +8755,10 @@
       "platform policies"
     ],
     "tools": [
-      "VCS (read exemplars; PR for templates)",
-      "Template rendering test harness"
+      "Exemplar Repository AST & Pattern Analyzer (read-only)",
+      "Cookiecutter / Backstage Scaffolder Template Synthesizer",
+      "Policy-as-Code Guardrail Generator (OPA / Kyverno)",
+      "CI Template Test Runner"
     ],
     "benefits": [
       "Golden paths multiply without proportional platform-team cost.",
@@ -8767,7 +8790,8 @@
         "slug": "ai-infrastructure-documentation-generator"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ Exemplar repo selection                            │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Pattern extraction (structure · CI · ops)          │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Template synthesis (scaffolder · cookiecutter)     │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Guardrail proposals (OPA · Kyverno)                │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Drift monitoring over time                         │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ Exemplar repo selection                            │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Pattern extraction (structure · CI · ops)          │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Template synthesis (scaffolder · cookiecutter)     │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Guardrail proposals (OPA · Kyverno)                │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Drift monitoring over time                         │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"golden_path_id\": \"gp-gen-nodejs-microservice\",\n  \"source_exemplar_repository\": \"org/payment-gateway-reference\",\n  \"target_scaffolder_format\": \"Backstage Scaffolder Template v1beta3\",\n  \"extracted_patterns\": {\n    \"runtime\": \"Node.js 20 LTS (TypeScript)\",\n    \"package_manager\": \"pnpm\",\n    \"testing_framework\": \"Vitest + Playwright E2E\",\n    \"dockerfile_pattern\": \"Multi-stage build with gcr.io/distroless/nodejs20-debian12\",\n    \"ci_workflow\": \"GitHub Actions with automated matrix test sharding and Docker buildx caching\"\n  },\n  \"generated_artifacts\": {\n    \"template_manifest\": \"templates/nodejs-service/template.yaml\",\n    \"skeleton_files_count\": 22,\n    \"derived_policy_guardrails\": [\n      {\n        \"engine\": \"Kyverno\",\n        \"rule_name\": \"require-distroless-base-image\",\n        \"policy_yaml\": \"apiVersion: kyverno.io/v1\nkind: ClusterPolicy\nmetadata:\n  name: require-distroless\nspec:\n  validationFailureAction: Enforce\n  rules:\n  - name: check-image\n    match:\n      resources:\n        kinds:\n        - Pod\n    validate:\n      message: \"Base image must derive from approved distroless registry.\"\n      pattern:\n        spec:\n          containers:\n          - image: \"gcr.io/distroless/*\"\"\n      }\n    ]\n  },\n  \"smoke_test_validation\": {\n    \"dry_run_scaffold_passed\": true,\n    \"test_build_exit_code\": 0\n  }\n}"
   },
   {
     "num": 49,
@@ -8912,8 +8936,10 @@
       "cloud resource tags"
     ],
     "tools": [
-      "Catalog APIs (propose; no silent writes)",
-      "VCS PR creation"
+      "Service Catalog REST API (Backstage / OpsLevel / Port read & propose)",
+      "VCS Activity & CODEOWNERS Analyzer (GitHub / GitLab MCP)",
+      "On-Call Schedule API (PagerDuty / Opsgenie)",
+      "Cloud Resource Tagging Inventory API"
     ],
     "benefits": [
       "A catalog people trust because it's verified against reality.",
@@ -8945,7 +8971,8 @@
         "slug": "ai-repository-infrastructure-analyzer"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ Catalog vs. reality comparison                     │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Enrichment PRs + drift flags                       │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← confidence-labeled\n┌────────────────────────────────────────────────────┐\n│ Owner confirmation campaigns                       │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Chat Q&A with citations                            │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Catalog health reporting                           │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ Catalog vs. reality comparison                     │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Enrichment PRs + drift flags                       │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← confidence-labeled\n┌────────────────────────────────────────────────────┐\n│ Owner confirmation campaigns                       │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Chat Q&A with citations                            │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Catalog health reporting                           │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"catalog_audit_id\": \"cat-audit-2026-10-06\",\n  \"entity_name\": \"checkout-order-fulfillment\",\n  \"entity_kind\": \"Component\",\n  \"drift_status\": \"OWNERSHIP_DRIFT_CONFIRMED\",\n  \"ownership_investigation\": {\n    \"recorded_owner_group\": \"group:legacy-logistics-team\",\n    \"inferred_active_owner\": \"group:checkout-core-squad\",\n    \"confidence_score\": 0.98,\n    \"corroborating_evidence\": [\n      \"100% of the last 45 commits to org/checkout-order-fulfillment authored by @checkout-core-squad members.\",\n      \"Primary on-call pager escalations routed to checkout-core PagerDuty escalation policy.\"\n    ]\n  },\n  \"metadata_enrichment_proposal\": {\n    \"target_catalog_file\": \"catalog-info.yaml\",\n    \"suggested_patch\": \"spec:\n  owner: group:checkout-core-squad\n  system: ecommerce-checkout\n  tier: tier-1\n  lifecycle: production\n\",\n    \"review_assigned_to\": \"@checkout-core-lead\"\n  },\n  \"service_dependency_graph\": {\n    \"upstream_services\": [\n      \"payment-gateway\",\n      \"inventory-service\"\n    ],\n    \"downstream_datastores\": [\n      \"postgres-fulfillment-replica\"\n    ]\n  }\n}"
   },
   {
     "num": 50,
@@ -9172,6 +9199,7 @@
       "Build on kagent/HolmesGPT as the runtime and add the policy/approval layer, rather than starting from scratch.",
       "CLI-first copilot for teams that live in terminals, Slack app for everyone else — same tool belt.",
       "Start as pure enrichment (idea 30) and grow into the full copilot as trust data accumulates."
-    ]
+    ],
+    "schema": "{\n  \"copilot_session_id\": \"oncall-session-2026-10-06-0042\",\n  \"incident_reference\": \"INC-84920\",\n  \"alert_context\": {\n    \"alert_name\": \"KafkaConsumerGroupLagSurge\",\n    \"affected_service\": \"order-event-worker\",\n    \"severity\": \"SEV-1\",\n    \"current_lag_messages\": 384000\n  },\n  \"autonomous_pre_investigation\": {\n    \"duration_seconds\": 22,\n    \"telemetry_findings\": \"Worker pods CPU utilization normal (42%), but thread dump indicates 95% of worker threads blocked in WAITING state on RDS Aurora write lock.\",\n    \"root_cause_hypothesis\": \"Unindexed transaction table query in migration 0089 holding exclusive table lock on orders table.\"\n  },\n  \"conversational_actions_executed\": [\n    {\n      \"operator_prompt\": \"Check RDS active locks on db-orders-aurora\",\n      \"tool_used\": \"aws_rds_describe_db_instances\",\n      \"summary\": \"Aurora PostgreSQL instance db-orders-aurora write latency spiked to 480ms with 18 active table lock waits.\"\n    }\n  ],\n  \"supervised_mitigation_plan\": {\n    \"action_tier\": \"PRE_APPROVED_RUNBOOK\",\n    \"runbook_name\": \"Cancel Long-Running Database Lock Query\",\n    \"sanctioned_command\": \"SELECT pg_cancel_backend(pid) FROM pg_stat_activity WHERE query LIKE '%ALTER TABLE orders ADD CONSTRAINT%' AND state = 'active';\",\n    \"safety_checks_passed\": true,\n    \"approval_status\": \"APPROVED_BY_OPERATOR\",\n    \"execution_audit_id\": \"AUDIT-K8S-OPS-91823\"\n  },\n  \"shift_handover_summary\": \"Mitigated Sev-1 Kafka consumer lag surge on order-event-worker by terminating blocking DDL query on RDS Aurora. Action items filed under INFRA-4891.\"\n}"
   }
 ]

@@ -108,8 +108,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* VCS (read; PR write)
-* CI config parsing
+* VCS Code & Config Ingestion API (read-only)
+* CI/CD & Dockerfile Schema Parser
+* VCS PR Creation (GitHub / GitLab MCP)
+* Internal Developer Portal / TechDocs Sync API
 
 ## ✅ Expected Benefits
 
@@ -135,4 +137,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

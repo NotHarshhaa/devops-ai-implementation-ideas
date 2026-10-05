@@ -53,7 +53,48 @@ A catalog-maintenance service: scheduled analysis compares catalog entities agai
 3. Owners confirm via targeted requests.
 4. The verified catalog powers Q&A and downstream tooling.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "catalog_audit_id": "cat-audit-2026-10-06",
+  "entity_name": "checkout-order-fulfillment",
+  "entity_kind": "Component",
+  "drift_status": "OWNERSHIP_DRIFT_CONFIRMED",
+  "ownership_investigation": {
+    "recorded_owner_group": "group:legacy-logistics-team",
+    "inferred_active_owner": "group:checkout-core-squad",
+    "confidence_score": 0.98,
+    "corroborating_evidence": [
+      "100% of the last 45 commits to org/checkout-order-fulfillment authored by @checkout-core-squad members.",
+      "Primary on-call pager escalations routed to checkout-core PagerDuty escalation policy."
+    ]
+  },
+  "metadata_enrichment_proposal": {
+    "target_catalog_file": "catalog-info.yaml",
+    "suggested_patch": "spec:
+  owner: group:checkout-core-squad
+  system: ecommerce-checkout
+  tier: tier-1
+  lifecycle: production
+",
+    "review_assigned_to": "@checkout-core-lead"
+  },
+  "service_dependency_graph": {
+    "upstream_services": [
+      "payment-gateway",
+      "inventory-service"
+    ],
+    "downstream_datastores": [
+      "postgres-fulfillment-replica"
+    ]
+  }
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -65,7 +106,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | Model routing & AI gateways | LiteLLM · OpenRouter · Portkey · Kong AI Gateway · Cloudflare AI Gateway | provider-agnostic routing with fallbacks, budgets, caching, and audit logs |
 | AI observability & evaluation | Langfuse · Arize Phoenix · LangSmith · W&B Weave · OpenTelemetry GenAI conventions · promptfoo | tracing of every model and tool call, cost/latency tracking, prompt regression evals |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -75,29 +116,29 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `on-call schedules`
 * `cloud resource tags`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 Ownership and critical metadata always require owner confirmation; inferred data is labeled as inferred.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
 * Inferred ownership must never auto-replace confirmed owners — confirmation flows are mandatory.
 * Catalog Q&A respects existing access permissions.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 Start as a stateless service (or even a CLI) invoked by webhooks, schedules, or chat commands. Containerize it, give it read-only credentials scoped to one system, and only graduate to a long-running agent with an approval queue once precision is trusted.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Events are batch-shaped and bursts follow working hours, so spend is spiky but low. Mini/flash-class models typically handle triage at a fraction of a cent per event; a frontier model is reserved for the deep-analysis step, and an open-weight model via Ollama or vLLM can bring marginal cost to zero at the price of self-hosting.
 
-## 12. Related Ideas
+## 13. Related Ideas
 
-- [47 · AI Internal Developer Platform Assistant](../47-ai-internal-developer-platform-assistant/README.md)
-- [48 · AI Golden Path Generator](../48-ai-golden-path-generator/README.md)
-- [44 · AI Repository Infrastructure Analyzer](../44-ai-repository-infrastructure-analyzer/README.md)
+- [47 · AI Internal Developer Platform Assistant](../../47-ai-internal-developer-platform-assistant/README.md)
+- [48 · AI Golden Path Generator](../../48-ai-golden-path-generator/README.md)
+- [44 · AI Repository Infrastructure Analyzer](../../44-ai-repository-infrastructure-analyzer/README.md)

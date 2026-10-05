@@ -108,8 +108,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* VCS (read exemplars; PR for templates)
-* Template rendering test harness
+* Exemplar Repository AST & Pattern Analyzer (read-only)
+* Cookiecutter / Backstage Scaffolder Template Synthesizer
+* Policy-as-Code Guardrail Generator (OPA / Kyverno)
+* CI Template Test Runner
 
 ## ✅ Expected Benefits
 
@@ -135,4 +137,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

@@ -110,8 +110,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* VCS PR API (comments)
-* Config inventory (read)
+* VCS PR & Diff Analysis API (GitHub / GitLab MCP)
+* Deployment Manifest & Topology Inventory (read-only)
+* Environment Variable & Secret Metadata Registry (names/types only)
+* PR Inline Comment Publisher
 
 ## ✅ Expected Benefits
 
@@ -137,4 +139,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*
