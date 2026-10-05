@@ -118,7 +118,7 @@ A static site showcasing all 50 ideas lives in [`docs/`](docs/) — hero, search
 **Regenerate the site data** after adding or editing ideas:
 
 ```bash
-python scripts/export_ideas_js.py   # rebuilds docs/ideas.js from the idea metadata
+python scripts/export_ideas_js.py   # rebuilds docs/data/ideas.js & ideas.json from metadata
 ```
 
 ---
