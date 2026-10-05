@@ -59,7 +59,48 @@ A terminal (or Slack) assistant wired to the cluster through the kubernetes MCP 
 4. Mutating commands are dry-run validated and presented with their effect.
 5. The human executes; the assistant explains output and offers next steps.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "query_id": "nl-k8s-91823",
+  "natural_language_intent": "find pods in production that are restarting frequently and show which nodes they are running on",
+  "inferred_scope": {
+    "cluster": "prod-us-east-1",
+    "namespace": "production",
+    "target_kinds": [
+      "Pod"
+    ]
+  },
+  "proposed_command": {
+    "cli": "kubectl get pods -n production --sort-by='.status.containerStatuses[0].restartCount' -o custom-columns='NAME:.metadata.name,RESTARTS:.status.containerStatuses[0].restartCount,NODE:.spec.nodeName,STATUS:.status.phase'",
+    "execution_tier": "READ_ONLY",
+    "destructive": false,
+    "dry_run_supported": false
+  },
+  "safety_assessment": {
+    "status": "APPROVED",
+    "requires_confirmation": false,
+    "policy_violations": [],
+    "blast_radius": "ZERO_READ_ONLY"
+  },
+  "dry_run_validation": {
+    "executed": true,
+    "exit_code": 0,
+    "simulated_output_sample": "NAME                         RESTARTS   NODE                 STATUS
+orders-worker-7c98b6f48f     6          ip-10-0-4-12.ec2     Running
+catalog-cache-6b58df8954     1          ip-10-0-4-99.ec2     Running"
+  },
+  "explanation": {
+    "command_breakdown": "Queries pods in 'production' namespace, extracts restart counts and node assignments via custom jsonpath columns, and sorts ascending by restart frequency.",
+    "suggested_next_step": "Run 'kubectl describe pod <name> -n production' or use the Pod Crash Analyzer on the top restarting pod."
+  }
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -72,7 +113,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | Cost-efficient model tiers | GPT-5 Mini/Nano · Claude Haiku 4.5 · Gemini Flash · DeepSeek V4 · Mistral Small | high-volume events (every failure, every alert) at a fraction of frontier cost |
 | Open-weight / self-hosted models | DeepSeek V4 · Qwen 3.x · Llama 4 · Mistral Large 2 served via vLLM or Ollama | keeps sensitive logs and infrastructure data in-house; zero per-token cost |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -82,31 +123,31 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `org policies`
 * `recent changes to the target resource`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 The human executes everything in their own context; the assistant is a writer/validator, never an executor.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
-* The assistant's own credentials are strictly read-only + dry-run; execution happens in the human's RBAC context.
+* The assistant's own credentials are strictly read-only and dry-run validated; execution happens solely in the human's authenticated RBAC context.
 * Destructive verbs (delete, scale to zero, drain) require explicit typed confirmation and are logged.
 * Watch for prompt injection via resource names/annotations; treat all cluster output as data.
 * Prefer local models (Ollama/vLLM) in regulated environments so cluster metadata stays in-network.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 Start as a stateless service (or even a CLI) invoked by webhooks, schedules, or chat commands. Containerize it, give it read-only credentials scoped to one system, and only graduate to a long-running agent with an approval queue once precision is trusted.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Events are batch-shaped and bursts follow working hours, so spend is spiky but low. Mini/flash-class models typically handle triage at a fraction of a cent per event; a frontier model is reserved for the deep-analysis step, and an open-weight model via Ollama or vLLM can bring marginal cost to zero at the price of self-hosting.
 
-## 12. Related Ideas
+## 13. Related Ideas
 
-- [02 · AI Kubernetes Troubleshooter](../02-ai-kubernetes-troubleshooter/README.md)
-- [19 · AI Cluster Operations Agent](../19-ai-cluster-operations-agent/README.md)
-- [13 · AI Pod Crash Analyzer](../13-ai-pod-crash-analyzer/README.md)
+- [02 · AI Kubernetes Troubleshooter](../../02-ai-kubernetes-troubleshooter/README.md)
+- [19 · AI Cluster Operations Agent](../../19-ai-cluster-operations-agent/README.md)
+- [13 · AI Pod Crash Analyzer](../../13-ai-pod-crash-analyzer/README.md)

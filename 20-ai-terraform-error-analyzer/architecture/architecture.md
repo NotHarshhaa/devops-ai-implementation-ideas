@@ -53,7 +53,55 @@ Wrap Terraform failure points (CI apply jobs, Atlantis, Terraform Cloud runs) wi
 3. The model classifies the error and drafts the safe remediation.
 4. The fix appears where the engineer is already looking: CI and Slack.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "diagnostic_id": "TF-ERR-7192",
+  "execution_context": {
+    "workspace": "networking-production",
+    "phase": "terraform_apply",
+    "terraform_version": "1.8.5",
+    "provider": "hashicorp/aws v5.42.0"
+  },
+  "error_classification": {
+    "error_type": "STATE_LOCK_HELD",
+    "severity": "CRITICAL_DEPLOYMENT_BLOCKED",
+    "confidence_score": 0.99
+  },
+  "raw_error_extract": "Error: Error acquiring the state lock: ConditionalCheckFailedException: The conditional request failed
+Lock Info:
+  ID:        b7d34c89-21a4-8f0a-6e5a-9b8417c8d901
+  Path:      production-tf-state/networking.tfstate
+  Operation: OperationTypeApply
+  Who:       runner@gh-runner-pod-8b9f
+  Version:   1.8.5
+  Created:   2026-10-05 21:14:02.19 UTC",
+  "root_cause_analysis": {
+    "summary": "State file is locked by a previous GitHub Actions workflow run (ID: 984124) that timed out without running clean-up hooks.",
+    "is_lock_stale": true,
+    "lock_holder_status": "GitHub Actions job exited 42 minutes ago with status 'cancelled'"
+  },
+  "remediation": {
+    "sanctioned_action": "FORCE_UNLOCK",
+    "is_state_surgery": false,
+    "command": "terraform force-unlock b7d34c89-21a4-8f0a-6e5a-9b8417c8d901",
+    "pre_requisite_safety_checklist": [
+      "Verified GitHub Actions workflow run #984124 is completely stopped",
+      "Confirmed no other team member is actively running local terraform apply",
+      "Created an automated S3 state snapshot backup before unlocking"
+    ],
+    "unsafe_actions_to_avoid": [
+      "Do NOT manually delete DynamoDB lock table entries via AWS console.",
+      "Do NOT run with '-lock=false' as this risks concurrent state corruption."
+    ]
+  }
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -65,7 +113,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | Model routing & AI gateways | LiteLLM · OpenRouter · Portkey · Kong AI Gateway · Cloudflare AI Gateway | provider-agnostic routing with fallbacks, budgets, caching, and audit logs |
 | AI observability & evaluation | Langfuse · Arize Phoenix · LangSmith · W&B Weave · OpenTelemetry GenAI conventions · promptfoo | tracing of every model and tool call, cost/latency tracking, prompt regression evals |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -76,29 +124,29 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `recent runs touching the same resources`
 * `provider changelogs`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 Advisory. State surgery is explicitly flagged as human-expert territory with a checklist, never automated.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
 * State may contain sensitive values: redact rigorously; prefer local models for state-adjacent context.
 * Analyzer credentials are read-only; it cannot unlock, edit state, or apply.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 Start as a stateless service (or even a CLI) invoked by webhooks, schedules, or chat commands. Containerize it, give it read-only credentials scoped to one system, and only graduate to a long-running agent with an approval queue once precision is trusted.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Events are batch-shaped and bursts follow working hours, so spend is spiky but low. Mini/flash-class models typically handle triage at a fraction of a cent per event; a frontier model is reserved for the deep-analysis step, and an open-weight model via Ollama or vLLM can bring marginal cost to zero at the price of self-hosting.
 
-## 12. Related Ideas
+## 13. Related Ideas
 
-- [03 · AI Terraform Reviewer](../03-ai-terraform-reviewer/README.md)
-- [21 · AI Terraform Plan Explainer](../21-ai-terraform-plan-explainer/README.md)
-- [23 · AI IaC Security Analyzer](../23-ai-iac-security-analyzer/README.md)
+- [03 · AI Terraform Reviewer](../../03-ai-terraform-reviewer/README.md)
+- [21 · AI Terraform Plan Explainer](../../21-ai-terraform-plan-explainer/README.md)
+- [23 · AI IaC Security Analyzer](../../23-ai-iac-security-analyzer/README.md)

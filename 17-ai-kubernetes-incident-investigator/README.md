@@ -117,9 +117,9 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* kubernetes MCP (read-only)
-* mcp-grafana (metrics/logs/traces)
-* GitHub MCP (change history)
+* Kubernetes MCP (read-only events, pods, nodes, controllers)
+* Grafana MCP (Prometheus metrics, Loki logs, Tempo traces)
+* GitHub MCP (deployment and change history)
 
 ## ✅ Expected Benefits
 
@@ -145,4 +145,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

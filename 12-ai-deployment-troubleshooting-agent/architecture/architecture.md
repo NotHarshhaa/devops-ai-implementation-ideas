@@ -1,6 +1,6 @@
 # AI Deployment Troubleshooting Agent — Architecture
 
-> When a deploy goes sideways, an agent verifies health across the stack and recommends (or drafts) the rollback — with humans holding the trigger.
+> When a deploy goes sideways, an agent verifies health across the stack and recommends (or drafts) the rollback — with human-in-the-loop authorization.
 
 *Focus: 🔄 CI/CD · Status: 📐 Architecture documented · Part of the [DevOps AI Implementation Ideas](../../README.md) catalog.*
 
@@ -60,7 +60,68 @@ Triggered by deploy events or SLO burn, an agent snapshots the pre-deploy baseli
 4. A rollback/fix-forward recommendation with full evidence is posted to the deploy thread.
 5. On approval, the gated executor opens the revert PR (GitOps) or pauses the rollout; everything is recorded for the postmortem.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "incident_id": "INC-84920",
+  "deployment_id": "deploy-payment-service-v2.14.0",
+  "service": "payment-service",
+  "target_version": "v2.14.0",
+  "baseline_version": "v2.13.9",
+  "status": "UNHEALTHY",
+  "health_verification": {
+    "rollout_percentage": 25,
+    "http_5xx_rate_pct": {
+      "baseline": 0.04,
+      "current_canary": 4.82,
+      "threshold_pct": 1.0
+    },
+    "p99_latency_ms": {
+      "baseline": 145,
+      "current_canary": 890,
+      "threshold_ms": 300
+    },
+    "synthetic_canary_pass_rate_pct": 72.0
+  },
+  "failure_attribution": {
+    "culprit_category": "APPLICATION_EXCEPTION",
+    "confidence_score": 0.94,
+    "evidence": [
+      "Canary pods logging NullPointerException in PaymentGatewayClient.authenticate()",
+      "Regression appeared exactly at rollout step 2 (traffic shifted from 10% to 25%)",
+      "Downstream Stripe mock latency remains unchanged at 38ms"
+    ],
+    "environmental_factors_excluded": [
+      "No database lock contention detected on rds-postgres-primary",
+      "Network packet drop rate steady at 0.001%"
+    ]
+  },
+  "decision_matrix": {
+    "recommended_action": "ROLLBACK",
+    "reasons": [
+      "Error budget consumption rate is at 14x sustainable burn rate",
+      "Database migration 20261005_add_idempotency_key is backward-compatible with v2.13.9"
+    ],
+    "rollback_safety_checks": {
+      "database_reversible": true,
+      "message_queue_drain_required": false,
+      "feature_flag_fallback_available": true
+    },
+    "rollback_plan": {
+      "mechanism": "GITOPS_REVERT_PR",
+      "repository": "org/gitops-prod",
+      "target_file": "apps/payment-service/values.yaml",
+      "revert_pr_url": "https://github.com/org/gitops-prod/pull/4821",
+      "emergency_cli_command": "kubectl argo rollbacks abort payment-service -n payments"
+    }
+  }
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -73,7 +134,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | AI observability & evaluation | Langfuse · Arize Phoenix · LangSmith · W&B Weave · OpenTelemetry GenAI conventions · promptfoo | tracing of every model and tool call, cost/latency tracking, prompt regression evals |
 | RAG stack | pgvector · Qdrant · Weaviate · OpenSearch k-NN; embeddings from OpenAI, Cohere Embed, or open BGE-M3 | retrieval over runbooks, docs, wikis, past incidents, and changelogs |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -84,30 +145,30 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `schema and queue compatibility notes`
 * `runbook for the service`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 Watching and planning are automatic. Execution requires approval, except optionally pre-approved flag-flips for revert-to-safe-default. GitOps reverts keep the audit trail in Git.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
 * Executor credentials are separate, scoped, and approval-gated; every action is logged immutably.
 * Guard against prompt injection flowing from logs/metrics: action allowlists and schema-validated plans only.
 * Test rollback paths (incl. DB compat) in drills; an untested rollback plan is a risk, not a mitigation.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 Start as a stateless service (or even a CLI) invoked by webhooks, schedules, or chat commands. Containerize it, give it read-only credentials scoped to one system, and only graduate to a long-running agent with an approval queue once precision is trusted.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Events are batch-shaped and bursts follow working hours, so spend is spiky but low. Mini/flash-class models typically handle triage at a fraction of a cent per event; a frontier model is reserved for the deep-analysis step, and an open-weight model via Ollama or vLLM can bring marginal cost to zero at the price of self-hosting.
 
-## 12. Related Ideas
+## 13. Related Ideas
 
-- [08 · AI Deployment Risk Analyzer](../08-ai-deployment-risk-analyzer/README.md)
-- [05 · AI Incident Investigator](../05-ai-incident-investigator/README.md)
-- [02 · AI Kubernetes Troubleshooter](../02-ai-kubernetes-troubleshooter/README.md)
+- [08 · AI Deployment Risk Analyzer](../../08-ai-deployment-risk-analyzer/README.md)
+- [05 · AI Incident Investigator](../../05-ai-incident-investigator/README.md)
+- [02 · AI Kubernetes Troubleshooter](../../02-ai-kubernetes-troubleshooter/README.md)

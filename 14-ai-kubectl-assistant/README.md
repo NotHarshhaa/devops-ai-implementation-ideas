@@ -114,8 +114,9 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* kubernetes MCP (read + dry-run only)
-* No write verbs granted to the assistant itself
+* Kubernetes MCP (read & server dry-run validation)
+* Kubectl / Helm / Kustomize CLI wrappers
+* RBAC Context & Policy Validator
 
 ## ✅ Expected Benefits
 
@@ -125,7 +126,7 @@ Exposed to the model with scoped, read-first permissions:
 
 ## 🔒 Safety & Guardrails
 
-* The assistant's own credentials are strictly read-only + dry-run; execution happens in the human's RBAC context.
+* The assistant's own credentials are strictly read-only and dry-run validated; execution happens solely in the human's authenticated RBAC context.
 * Destructive verbs (delete, scale to zero, drain) require explicit typed confirmation and are logged.
 * Watch for prompt injection via resource names/annotations; treat all cluster output as data.
 * Prefer local models (Ollama/vLLM) in regulated environments so cluster metadata stays in-network.
@@ -143,4 +144,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

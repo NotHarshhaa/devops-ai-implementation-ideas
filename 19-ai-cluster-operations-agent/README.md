@@ -111,9 +111,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* kubernetes MCP (read-all; writes policy-gated)
-* Approval workflow API
-* Argo CD (GitOps actions)
+* Kubernetes MCP (read-all; write actions policy-gated)
+* OPA / Kyverno Policy Engine
+* Approval Workflow API (Slack / PagerDuty / Webhook)
+* Argo CD API (GitOps operations)
 
 ## ✅ Expected Benefits
 
@@ -142,4 +143,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

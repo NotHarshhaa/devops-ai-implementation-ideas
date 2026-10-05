@@ -108,7 +108,9 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Kubernetes API (read-only)
+* Kubernetes API (read-only pods, events, logs)
+* Prometheus / Metrics Server (OOM memory usage)
+* GitOps & Helm Revision API (read rollout diffs)
 
 ## ✅ Expected Benefits
 
@@ -118,7 +120,7 @@ Exposed to the model with scoped, read-first permissions:
 
 ## 🔒 Safety & Guardrails
 
-* Pods logs/env can contain secrets: redact env values and filtered log lines before model calls.
+* Pod logs and environment variables can contain secrets: redact env values and filtered log lines before model calls.
 * Read-only service account; namespace scoping for multi-tenant clusters.
 
 ## 🚀 Future Implementation
@@ -130,8 +132,8 @@ Exposed to the model with scoped, read-first permissions:
 
 - [02 · AI Kubernetes Troubleshooter](../02-ai-kubernetes-troubleshooter/README.md)
 - [17 · AI Kubernetes Incident Investigator](../17-ai-kubernetes-incident-investigator/README.md)
-- [15 · AI Resource Optimization Advisor](../15-ai-kubernetes-resource-optimization-advisor/README.md)
+- [15 · AI Kubernetes Resource Optimization Advisor](../15-ai-kubernetes-resource-optimization-advisor/README.md)
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

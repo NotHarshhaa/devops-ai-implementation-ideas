@@ -17,7 +17,7 @@
 
 Slow builds tax every single commit, but optimization is deferred because profiling and fixing requires expertise nobody has spare time for.
 
-* Builds grow slowly (dep accumulates, caches miss, steps serialize) and nobody notices until it's 25 minutes.
+* Builds grow slowly (dependencies accumulate, caches miss, steps serialize) and nobody notices until it's 25 minutes.
 * Cache configurations are subtle (key design, paths, lockfiles) and frequently wrong.
 * Runner sizing and matrix sharding are guesswork.
 * The same slow pattern repeats across dozens of repos.
@@ -28,7 +28,7 @@ Slow builds tax every single commit, but optimization is deferred because profil
 
 | AI capability | How it helps here |
 | --- | --- |
-| Bottleneck analysis | explains where time goes: restore, compile, test, publish, queue/wait |
+| Bottleneck analysis | identifies where pipeline time is lost: cache restore, compilation, test suites, artifact publishing, or runner queue delays |
 | Cache diagnosis | detects cache misses and proposes better keys/paths/lockfile usage |
 | Parallelization planning | identifies independent stages and proposes matrix/sharding layouts |
 | Dependency pruning | flags unused or oversized dependencies and heavy base images |
@@ -109,7 +109,9 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* CI APIs (read); VCS PR creation
+* CI/CD APIs (GitHub Actions / GitLab CI / Jenkins read)
+* Runner Telemetry & Metrics Collector
+* VCS PR Creation (GitHub / GitLab MCP)
 
 ## ✅ Expected Benefits
 
@@ -135,4 +137,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

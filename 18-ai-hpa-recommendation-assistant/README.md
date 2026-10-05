@@ -107,8 +107,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Prometheus (read)
-* VCS PR creation
+* Prometheus / Thanos PromQL API (read usage metrics)
+* Kubernetes Metrics Server & VPA API (read)
+* Kubecost / OpenCost API (cost attribution)
+* VCS PR Creation (GitHub / GitLab MCP)
 
 ## ✅ Expected Benefits
 
@@ -128,10 +130,10 @@ Exposed to the model with scoped, read-first permissions:
 
 ## 🔗 Related Ideas
 
-- [15 · AI Resource Optimization Advisor](../15-ai-kubernetes-resource-optimization-advisor/README.md)
+- [15 · AI Kubernetes Resource Optimization Advisor](../15-ai-kubernetes-resource-optimization-advisor/README.md)
 - [13 · AI Pod Crash Analyzer](../13-ai-pod-crash-analyzer/README.md)
 - [29 · AI Cloud Resource Optimization Assistant](../29-ai-cloud-resource-optimization-assistant/README.md)
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

@@ -109,7 +109,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* CI/TFC APIs (read)
+* Terraform & OpenTofu CLI parser (stderr, exit code, plan JSON)
+* Terraform Cloud / Spacelift / Atlantis API (read run context)
+* Provider Knowledge Base & Release Notes (RAG retrieval)
+* CI PR Annotations (GitHub / GitLab MCP)
 
 ## ✅ Expected Benefits
 
@@ -135,4 +138,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

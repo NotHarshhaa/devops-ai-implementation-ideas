@@ -1,6 +1,6 @@
 # 12 · AI Deployment Troubleshooting Agent
 
-> When a deploy goes sideways, an agent verifies health across the stack and recommends (or drafts) the rollback — with humans holding the trigger.
+> When a deploy goes sideways, an agent verifies health across the stack and recommends (or drafts) the rollback — with human-in-the-loop authorization.
 
 ![Area](https://img.shields.io/badge/Area-CI%2FCD-blue) ![Status](https://img.shields.io/badge/Status-Architecture%20Documented-orange) ![Complexity](https://img.shields.io/badge/Complexity-High-lightgrey) ![Automation](https://img.shields.io/badge/Automation-Supervised_automation-informational)
 
@@ -117,10 +117,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Argo CD / CD API (read; gated write)
-* Grafana MCP (metrics)
-* GitHub MCP (revert PR)
-* Flags API (gated)
+* Argo CD / Flux CD API (read; gated write)
+* Grafana MCP (Prometheus metrics & APM)
+* GitHub / GitLab MCP (revert PR)
+* Feature Flags API (gated kill-switches)
 
 ## ✅ Expected Benefits
 
@@ -147,4 +147,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

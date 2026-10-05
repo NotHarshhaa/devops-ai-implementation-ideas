@@ -1,4 +1,4 @@
-# 15 · AI Resource Optimization Advisor
+# 15 · AI Kubernetes Resource Optimization Advisor
 
 > Right-size requests and limits continuously using real usage data — explained, safe, and reviewable as GitOps PRs.
 
@@ -109,8 +109,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Prometheus (read)
-* VCS PR creation
+* Prometheus / Thanos PromQL API (read usage metrics)
+* Kubernetes Metrics Server & VPA API (read)
+* Kubecost / OpenCost API (cost attribution)
+* VCS PR Creation (GitHub / GitLab MCP)
 
 ## ✅ Expected Benefits
 
@@ -136,4 +138,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*
