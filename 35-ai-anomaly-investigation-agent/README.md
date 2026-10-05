@@ -110,9 +110,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* mcp-grafana (read)
-* Deploy history (read)
-* Ticketing (file)
+* Grafana ML / Prometheus Anomaly Detector Bridge
+* Grafana MCP (Prometheus / Loki / Tempo read)
+* VCS Deploy & Commit History API
+* Jira / GitHub Issues API (file finding)
 
 ## ✅ Expected Benefits
 
@@ -138,4 +139,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

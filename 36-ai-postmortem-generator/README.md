@@ -110,9 +110,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Incident platform (read)
-* Chat export (read)
-* Doc/tracker APIs (write after review)
+* Incident Management Platform API (PagerDuty / FireHydrant / incident.io read)
+* Slack / Teams Channel Exporter (read-only)
+* Knowledge Base & Doc APIs (Confluence / Google Docs / Notion PR write)
+* Jira / Linear Issue Tracker API
 
 ## ✅ Expected Benefits
 
@@ -138,4 +139,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

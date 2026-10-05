@@ -53,7 +53,49 @@ A summarizer bot watching the incident channel and timeline data: it drafts audi
 3. The IC edits and approves; approved text is distributed.
 4. The full communication log is archived for the postmortem.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "incident_id": "INC-2026-10-9182",
+  "incident_title": "Elevated 504 Gateway Timeouts in Payment Checkout Service",
+  "severity": "SEV-1",
+  "status": "IDENTIFIED",
+  "incident_duration_minutes": 42,
+  "executive_briefing": {
+    "status_headline": "Identified connection pool exhaustion; failover in progress with 85% traffic recovered.",
+    "business_impact": "Approximately 480 checkout transactions failed between 23:10 and 23:40 UTC.",
+    "customer_exposure": "Desktop and mobile checkout flows experienced intermittent 504 errors.",
+    "estimated_full_recovery_time": "2026-10-06T00:15:00Z",
+    "next_scheduled_update": "2026-10-06T00:00:00Z"
+  },
+  "responder_handoff": {
+    "timeline_summary": "At 23:12 UTC, alert High5xxErrorRate fired. Canary v2.18.2 identified with keep-alive timeout misconfiguration. Rollback initiated at 23:36 UTC.",
+    "hypotheses_disproven": [
+      "Stripe downstream mock latency remained steady at 38ms (ruled out external gateway failure)"
+    ],
+    "current_workstream": "Verifying error rates across all regional edge Envoy clusters post-rollback.",
+    "incident_leadership": {
+      "incident_commander": "@alex-sre",
+      "technical_lead": "@sam-backend"
+    }
+  },
+  "support_team_macro": {
+    "customer_facing_summary": "We are currently addressing an issue impacting checkout processing. A fix is deployed and transactions are recovering.",
+    "agent_guidance": "Advise customers who received a failed payment notice to retry their transaction. Do not submit duplicate manual refund requests.",
+    "public_statuspage_url": "https://status.example.com/incidents/inc-9182"
+  },
+  "approval_state": {
+    "requires_ic_approval": true,
+    "drafted_at": "2026-10-05T23:48:12Z",
+    "ready_to_publish": true
+  }
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -64,7 +106,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | RAG stack | pgvector · Qdrant · Weaviate · OpenSearch k-NN; embeddings from OpenAI, Cohere Embed, or open BGE-M3 | retrieval over runbooks, docs, wikis, past incidents, and changelogs |
 | Model routing & AI gateways | LiteLLM · OpenRouter · Portkey · Kong AI Gateway · Cloudflare AI Gateway | provider-agnostic routing with fallbacks, budgets, caching, and audit logs |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -74,29 +116,29 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `impacted services`
 * `past incident comms style`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 Every external update requires IC approval; the bot drafts, humans speak.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
 * Incident channels contain sensitive info: summaries respect channel boundaries; no cross-posting secrets.
 * Drafts-only default prevents the bot from ever speaking unapproved to execs/customers.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 Start as a stateless service (or even a CLI) invoked by webhooks, schedules, or chat commands. Containerize it, give it read-only credentials scoped to one system, and only graduate to a long-running agent with an approval queue once precision is trusted.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Events are batch-shaped and bursts follow working hours, so spend is spiky but low. Mini/flash-class models typically handle triage at a fraction of a cent per event; a frontier model is reserved for the deep-analysis step, and an open-weight model via Ollama or vLLM can bring marginal cost to zero at the price of self-hosting.
 
-## 12. Related Ideas
+## 13. Related Ideas
 
-- [05 · AI Incident Investigator](../05-ai-incident-investigator/README.md)
-- [36 · AI Postmortem Generator](../36-ai-postmortem-generator/README.md)
-- [50 · AI On-Call Copilot](../50-ai-on-call-copilot/README.md)
+- [05 · AI Incident Investigator](../../05-ai-incident-investigator/README.md)
+- [36 · AI Postmortem Generator](../../36-ai-postmortem-generator/README.md)
+- [50 · AI On-Call Copilot](../../50-ai-on-call-copilot/README.md)

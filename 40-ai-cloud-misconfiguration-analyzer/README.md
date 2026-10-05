@@ -110,8 +110,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* CSPM APIs (read)
-* VCS PR creation
+* Cloud Security Posture Management API (AWS Security Hub / Defender for Cloud / Prowler read)
+* Cloud Asset Inventory & Tagging API
+* IaC Repositories (Terraform / OpenTofu)
+* VCS PR Creation (GitHub / GitLab MCP)
 
 ## ✅ Expected Benefits
 
@@ -137,4 +139,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

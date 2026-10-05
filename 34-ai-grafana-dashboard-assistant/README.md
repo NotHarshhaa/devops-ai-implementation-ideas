@@ -107,8 +107,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Grafana API (scoped write after approval)
-* Datasource query APIs (read)
+* Grafana REST API (dashboard, folder, datasource management)
+* Grafana MCP Server
+* Datasource Query APIs (Prometheus / Loki read)
+* Dashboard-as-Code Repo (Jsonnet / Terraform provider PR)
 
 ## ✅ Expected Benefits
 
@@ -134,4 +136,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

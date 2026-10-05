@@ -53,7 +53,55 @@ An RCA companion for the investigation phase (post-mitigation or during): it rea
 3. Each round, the assistant names the most decisive next check.
 4. Results update the tree; the final narrative explains the mechanism and what remains unknown.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "rca_case_id": "RCA-2026-10-04",
+  "incident_ref": "INC-2026-10-9182",
+  "primary_symptom": "504 Gateway Timeout spike reaching 18% during payment checkout operations",
+  "hypothesis_tree": [
+    {
+      "hypothesis_id": "H1",
+      "rank": 1,
+      "title": "Keep-alive connection pool timeout mismatch between Ingress Envoy and backend payment-service",
+      "prior_probability": 0.85,
+      "discriminating_check": {
+        "check_type": "LogQL",
+        "command_or_query": "{app="ingress-nginx"} |= "upstream connect error or disconnect/reset before headers"",
+        "expected_if_true": "High volume of premature connection resets originating immediately after 15s idle intervals.",
+        "expected_if_false": "Evenly distributed timeouts occurring across full request duration spectrum (>60s)."
+      },
+      "evaluation_status": "CONFIRMED"
+    },
+    {
+      "hypothesis_id": "H2",
+      "rank": 2,
+      "title": "Database connection pool exhaustion on Postgres primary replica",
+      "prior_probability": 0.10,
+      "discriminating_check": {
+        "check_type": "PromQL",
+        "command_or_query": "pg_stat_activity_count{state="active"} / pg_settings_max_connections",
+        "expected_if_true": "Database connection utilization ratio exceeding 95%.",
+        "expected_if_false": "Utilization steady under 40%."
+      },
+      "evaluation_status": "REFUTED"
+    }
+  ],
+  "confirmed_mechanism_narrative": {
+    "trigger_event": "Commit a1b2c3d lowered backend Node.js server.keepAliveTimeout to 15 seconds to save idle socket memory.",
+    "propagation_path": "Upstream Envoy ingress maintained a 60-second idle connection timeout. Envoy dispatched active checkout requests over sockets that Node.js had already closed, producing immediate 502/504 Bad Gateway responses.",
+    "safeguard_failure": "Integration tests lacked HTTP keep-alive socket reuse assertion under idle delay conditions.",
+    "residual_uncertainties": [
+      "Determining why Envoy did not automatically retry idempotent GET/POST requests upon initial socket reset."
+    ]
+  }
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -65,7 +113,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | AI observability & evaluation | Langfuse · Arize Phoenix · LangSmith · W&B Weave · OpenTelemetry GenAI conventions · promptfoo | tracing of every model and tool call, cost/latency tracking, prompt regression evals |
 | Model routing & AI gateways | LiteLLM · OpenRouter · Portkey · Kong AI Gateway · Cloudflare AI Gateway | provider-agnostic routing with fallbacks, budgets, caching, and audit logs |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -75,29 +123,29 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `past RCA records`
 * `architecture/topology`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 Humans run all checks; the assistant structures the process. It can be wrong — its job is to make hypotheses explicit and testable, not to declare truth.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
 * RCA narratives can name people/systems: keep them in access-controlled postmortem tools.
 * Blameless framing enforced in templates and prompts.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 Start as a stateless service (or even a CLI) invoked by webhooks, schedules, or chat commands. Containerize it, give it read-only credentials scoped to one system, and only graduate to a long-running agent with an approval queue once precision is trusted.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Events are batch-shaped and bursts follow working hours, so spend is spiky but low. Mini/flash-class models typically handle triage at a fraction of a cent per event; a frontier model is reserved for the deep-analysis step, and an open-weight model via Ollama or vLLM can bring marginal cost to zero at the price of self-hosting.
 
-## 12. Related Ideas
+## 13. Related Ideas
 
-- [05 · AI Incident Investigator](../05-ai-incident-investigator/README.md)
-- [36 · AI Postmortem Generator](../36-ai-postmortem-generator/README.md)
-- [17 · AI Kubernetes Incident Investigator](../17-ai-kubernetes-incident-investigator/README.md)
+- [05 · AI Incident Investigator](../../05-ai-incident-investigator/README.md)
+- [36 · AI Postmortem Generator](../../36-ai-postmortem-generator/README.md)
+- [17 · AI Kubernetes Incident Investigator](../../17-ai-kubernetes-incident-investigator/README.md)

@@ -53,7 +53,50 @@ A continuous agent fed by anomaly detectors (Prometheus-based, Elastic/ADR-style
 3. Significant candidates get a bounded investigation and a written report.
 4. Reports reach owning teams; dispositions tune the system.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "anomaly_id": "anom-2026-10-06-8819",
+  "service": "user-auth-session-manager",
+  "metric_name": "redis_connected_clients",
+  "detection_timestamp": "2026-10-06T00:02:15Z",
+  "triage_verdict": {
+    "status": "SIGNIFICANT_INVESTIGATION_WARRANTED",
+    "severity_score": 0.87,
+    "seasonality_explained": false,
+    "novelty_rating": "HIGH (never observed in preceding 90 days)"
+  },
+  "investigation_findings": {
+    "anomaly_duration_minutes": 55,
+    "baseline_expected_range": "1,200 - 1,600 connected clients",
+    "current_observed_value": "9,840 connected clients",
+    "correlated_signals": [
+      "Redis memory allocation rose by 34% (connection buffer accumulation)",
+      "Zero client connection drop rate despite idle status"
+    ],
+    "correlated_changes": [
+      {
+        "type": "DEPLOYMENT",
+        "service": "user-auth-session-manager",
+        "version": "v3.14.0",
+        "timestamp": "2026-10-05T23:05:00Z",
+        "commit": "8f9a1b2 (refactor session token renewal worker)"
+      }
+    ]
+  },
+  "root_cause_hypothesis": "New session renewal worker in v3.14.0 instantiates a new Redis client on every token refresh without calling connection.close() in finally block.",
+  "recommended_action": {
+    "priority": "HIGH (Prevent redis connection exhaustion before peak morning traffic)",
+    "action": "File ticket and ping service owners to patch connection pool leak or revert v3.14.0.",
+    "jira_ticket_filed": "AUTH-1849"
+  }
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -66,7 +109,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | AI observability & evaluation | Langfuse · Arize Phoenix · LangSmith · W&B Weave · OpenTelemetry GenAI conventions · promptfoo | tracing of every model and tool call, cost/latency tracking, prompt regression evals |
 | Model routing & AI gateways | LiteLLM · OpenRouter · Portkey · Kong AI Gateway · Cloudflare AI Gateway | provider-agnostic routing with fallbacks, budgets, caching, and audit logs |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -76,29 +119,29 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `recent changes`
 * `past anomaly dispositions`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 The agent files reports; humans decide on action. Escalation to pages requires policy changes, not agent discretion.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
 * Hard budgets on investigation frequency/cost to avoid a self-inflicted observability bill.
 * Findings routed by ownership rules; no broadcast of sensitive anomalies to broad channels.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 Start as a stateless service (or even a CLI) invoked by webhooks, schedules, or chat commands. Containerize it, give it read-only credentials scoped to one system, and only graduate to a long-running agent with an approval queue once precision is trusted.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Events are batch-shaped and bursts follow working hours, so spend is spiky but low. Mini/flash-class models typically handle triage at a fraction of a cent per event; a frontier model is reserved for the deep-analysis step, and an open-weight model via Ollama or vLLM can bring marginal cost to zero at the price of self-hosting.
 
-## 12. Related Ideas
+## 13. Related Ideas
 
-- [30 · AI Alert Investigation Assistant](../30-ai-alert-investigation-assistant/README.md)
-- [04 · AI Log Analyzer](../04-ai-log-analyzer/README.md)
-- [26 · AI Cloud Cost Analysis Assistant](../26-ai-cloud-cost-analysis-assistant/README.md)
+- [30 · AI Alert Investigation Assistant](../../30-ai-alert-investigation-assistant/README.md)
+- [04 · AI Log Analyzer](../../04-ai-log-analyzer/README.md)
+- [26 · AI Cloud Cost Analysis Assistant](../../26-ai-cloud-cost-analysis-assistant/README.md)

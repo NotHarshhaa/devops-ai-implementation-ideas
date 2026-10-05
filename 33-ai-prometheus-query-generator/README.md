@@ -107,7 +107,9 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Prometheus/Loki query APIs (read-only)
+* Prometheus / Thanos / Mimir HTTP API (metadata discovery & read-only query execution)
+* Loki / Elasticsearch Query API
+* Grafana Assistant & MCP Client
 
 ## ✅ Expected Benefits
 
@@ -133,4 +135,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

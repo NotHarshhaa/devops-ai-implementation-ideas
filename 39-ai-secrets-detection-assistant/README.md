@@ -108,8 +108,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Audit logs (read, policy-gated)
-* Ticketing (file/track)
+* Secret Scanning Ingestion API (Gitleaks / TruffleHog / GitHub Secret Scanning)
+* Cloud Provider Audit Logs (read-only usage check)
+* Secret Management Platform (HashiCorp Vault / AWS Secrets Manager)
+* Security Incident Ticketing API
 
 ## ✅ Expected Benefits
 
@@ -136,4 +138,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

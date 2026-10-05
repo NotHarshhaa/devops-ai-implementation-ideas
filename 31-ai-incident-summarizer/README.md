@@ -106,8 +106,9 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Incident platform API (read)
-* Chat APIs (post on approval)
+* Incident Management Platform API (PagerDuty / FireHydrant / incident.io read)
+* Slack / Teams Bot API (post drafts & notifications upon approval)
+* Statuspage API (draft customer status updates)
 
 ## ✅ Expected Benefits
 
@@ -133,4 +134,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

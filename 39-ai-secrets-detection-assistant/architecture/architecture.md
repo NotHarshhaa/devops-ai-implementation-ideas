@@ -53,7 +53,63 @@ A triage assistant layered on Gitleaks/TruffleHog findings: each finding gets cl
 3. Real ones get blast-radius notes, usage evidence, and a tailored runbook.
 4. Response is tracked to closure with the audit trail.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "leak_detection_id": "sec-leak-8491",
+  "repository": "org/payment-service",
+  "file_path": "src/services/stripe_client.py",
+  "commit_sha": "3a4b5c6d7e8f",
+  "secret_classification": {
+    "secret_type": "STRIPE_LIVE_RESTRICTED_KEY",
+    "redacted_token": "rk_live_...9f2a",
+    "is_real_credential": true,
+    "confidence": 0.99
+  },
+  "blast_radius_analysis": {
+    "affected_provider": "Stripe",
+    "granted_capabilities": [
+      "charges:write",
+      "customers:read",
+      "refunds:write"
+    ],
+    "maximum_damage_scenario": "Unauthorized initiation of customer refunds and exfiltration of customer cardholder metadata."
+  },
+  "audit_log_verification": {
+    "audit_checked": true,
+    "log_source": "Stripe API Audit Logs",
+    "unauthorized_api_calls_detected": 0,
+    "time_window_evaluated": "Last 72 hours"
+  },
+  "emergency_rotation_runbook": [
+    {
+      "step": 1,
+      "action": "Generate new replacement restricted key in Stripe Dashboard with identical scopes.",
+      "urgency": "IMMEDIATE"
+    },
+    {
+      "step": 2,
+      "action": "Update AWS Secrets Manager secret 'prod/payment/stripe_key' with new value.",
+      "urgency": "IMMEDIATE"
+    },
+    {
+      "step": 3,
+      "action": "Revoke leaked key 'rk_live_...9f2a' in Stripe Dashboard.",
+      "urgency": "IMMEDIATE"
+    },
+    {
+      "step": 4,
+      "action": "Purge leaked commit 3a4b5c6d7e8f from git history using git-filter-repo.",
+      "urgency": "POST_MITIGATION"
+    }
+  ]
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -65,7 +121,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | Model routing & AI gateways | LiteLLM · OpenRouter · Portkey · Kong AI Gateway · Cloudflare AI Gateway | provider-agnostic routing with fallbacks, budgets, caching, and audit logs |
 | AI observability & evaluation | Langfuse · Arize Phoenix · LangSmith · W&B Weave · OpenTelemetry GenAI conventions · promptfoo | tracing of every model and tool call, cost/latency tracking, prompt regression evals |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -75,30 +131,30 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `usage/audit logs`
 * `repo history state`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 The assistant never touches credentials or revokes anything. Live validation (e.g., a get-caller-identity call) only runs under policy with human trigger.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
 * Never send the secret value itself to the model — only type, prefix, and metadata.
 * Live validation is destructive-adjacent: policy-gated, logged, human-triggered only.
 * The runbook itself should avoid embedding current credential values.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 Start as a stateless service (or even a CLI) invoked by webhooks, schedules, or chat commands. Containerize it, give it read-only credentials scoped to one system, and only graduate to a long-running agent with an approval queue once precision is trusted.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Events are batch-shaped and bursts follow working hours, so spend is spiky but low. Mini/flash-class models typically handle triage at a fraction of a cent per event; a frontier model is reserved for the deep-analysis step, and an open-weight model via Ollama or vLLM can bring marginal cost to zero at the price of self-hosting.
 
-## 12. Related Ideas
+## 13. Related Ideas
 
-- [40 · AI Cloud Misconfiguration Analyzer](../40-ai-cloud-misconfiguration-analyzer/README.md)
-- [41 · AI Security Incident Assistant](../41-ai-security-incident-assistant/README.md)
-- [03 · AI Terraform Reviewer](../03-ai-terraform-reviewer/README.md)
+- [40 · AI Cloud Misconfiguration Analyzer](../../40-ai-cloud-misconfiguration-analyzer/README.md)
+- [41 · AI Security Incident Assistant](../../41-ai-security-incident-assistant/README.md)
+- [03 · AI Terraform Reviewer](../../03-ai-terraform-reviewer/README.md)
