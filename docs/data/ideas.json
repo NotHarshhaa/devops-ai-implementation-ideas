@@ -3915,7 +3915,9 @@
       "resource criticality tags"
     ],
     "tools": [
-      "VCS PR comments; run APIs (read)"
+      "Terraform & OpenTofu CLI (plan JSON parser)",
+      "VCS PR Comments & Review API (GitHub / GitLab MCP)",
+      "Terraform Cloud / Spacelift Run API (read)"
     ],
     "benefits": [
       "Approvals become informed decisions with minimal extra effort.",
@@ -3947,7 +3949,8 @@
         "slug": "ai-pull-request-infrastructure-reviewer"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ Plan JSON from CI / TFC / Atlantis                 │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Action analyzer (replacements · deletions · drift) │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ LLM narrator (per-resource · audience-tuned)       │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ PR explainer + danger callouts                     │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Informed human approval                            │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ Plan JSON from CI / TFC / Atlantis                 │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Action analyzer (replacements · deletions · drift) │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ LLM narrator (per-resource · audience-tuned)       │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ PR explainer + danger callouts                     │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Informed human approval                            │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"plan_id\": \"tfplan-prod-networking-9182\",\n  \"workspace\": \"networking-production\",\n  \"terraform_version\": \"1.8.5\",\n  \"blast_radius_rating\": \"HIGH\",\n  \"action_summary\": {\n    \"to_add\": 2,\n    \"to_change\": 3,\n    \"to_destroy\": 0,\n    \"to_replace\": 1\n  },\n  \"critical_danger_alerts\": [\n    {\n      \"resource_address\": \"aws_route_table.public_egress\",\n      \"action\": \"replace\",\n      \"forces_replacement_attributes\": [\n        \"vpc_id\"\n      ],\n      \"requires_downtime\": true,\n      \"plain_text_risk\": \"Destroying and recreating this route table will sever internet egress for all 16 public subnet workloads during the 3-5 minute recreation window.\"\n    }\n  ],\n  \"drift_detected\": [\n    {\n      \"resource_address\": \"aws_security_group_rule.ingress_ssh\",\n      \"attribute\": \"cidr_blocks\",\n      \"configured_value\": \"['10.0.0.0/16']\",\n      \"actual_cloud_value\": \"['0.0.0.0/0']\",\n      \"explanation\": \"Out-of-band change opened SSH to the public internet; this Terraform apply will revert port 22 access back to internal VPC only.\"\n    }\n  ],\n  \"resource_changes_narrative\": [\n    {\n      \"resource\": \"aws_subnet.private_app_c\",\n      \"action\": \"create\",\n      \"purpose\": \"Adds third availability zone subnet to satisfy multi-AZ redundancy policy.\"\n    },\n    {\n      \"resource\": \"aws_nat_gateway.public\",\n      \"action\": \"update\",\n      \"purpose\": \"Updates allocation_id to new secondary Elastic IP.\"\n    }\n  ],\n  \"approval_checklist\": [\n    \"Verify maintenance window is active before approving public_egress route table replacement\",\n    \"Confirm on-call network engineer is present in #infra-deploys channel\"\n  ]\n}"
   },
   {
     "num": 22,
@@ -4092,9 +4095,10 @@
       "plan output"
     ],
     "tools": [
-      "Module registry (read)",
-      "VCS PR creation",
-      "Terraform plan (sandbox)"
+      "Private Module Registry API (read modules & examples)",
+      "Terraform CLI Sandbox (init/validate/plan)",
+      "Infracost CLI (cost estimation)",
+      "VCS PR Creation (GitHub / GitLab MCP)"
     ],
     "benefits": [
       "Self-service without standards erosion.",
@@ -4127,7 +4131,8 @@
         "slug": "ai-golden-path-generator"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ User intent (Backstage · CLI · web)                │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Clarifying questions                               │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Golden-module composition                          │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← RAG over registry\n┌────────────────────────────────────────────────────┐\n│ Sandbox plan + cost estimate                       │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ PR → platform review                               │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ User intent (Backstage · CLI · web)                │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Clarifying questions                               │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Golden-module composition                          │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← RAG over registry\n┌────────────────────────────────────────────────────┐\n│ Sandbox plan + cost estimate                       │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ PR → platform review                               │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"request_id\": \"nl-tf-4091\",\n  \"user_intent\": \"Provision a secure SQS queue for processing order events with a dead-letter queue, 14-day retention, and server-side KMS encryption.\",\n  \"clarified_parameters\": {\n    \"service_owner\": \"orders-team\",\n    \"environment\": \"production\",\n    \"region\": \"us-east-1\",\n    \"retention_days\": 14,\n    \"max_receive_count\": 5\n  },\n  \"retrieved_golden_modules\": [\n    {\n      \"module_name\": \"terraform-aws-sqs-secure\",\n      \"source\": \"app.terraform.io/my-org/sqs-secure/aws\",\n      \"version\": \"~> 3.2.0\",\n      \"compliance_tags_enforced\": [\n        \"Environment\",\n        \"Owner\",\n        \"DataClassification\"\n      ]\n    }\n  ],\n  \"generated_terraform_code\": {\n    \"target_file\": \"modules/order_queue/main.tf\",\n    \"hcl_content\": \"module \"order_events_queue\" {\n  source  = \"app.terraform.io/my-org/sqs-secure/aws\"\n  version = \"~> 3.2.0\"\n\n  name                       = \"orders-processing-events-prod\"\n  message_retention_seconds  = 1209600\n  kms_master_key_id          = \"alias/aws/sqs\"\n  enable_dead_letter_queue   = true\n  max_receive_count          = 5\n\n  tags = {\n    Environment        = \"production\"\n    Owner              = \"orders-team\"\n    DataClassification = \"confidential\"\n  }\n}\",\n    \"policy_as_code_status\": \"PASSED (OPA Sentinel rules 4/4 compliant)\"\n  },\n  \"sandbox_plan_validation\": {\n    \"plan_exit_code\": 0,\n    \"resources_to_create\": 2,\n    \"estimated_monthly_cost_usd\": 4.80,\n    \"validation_summary\": \"Successfully planned: 1 primary SQS queue, 1 DLQ, and 1 redrive policy.\"\n  },\n  \"pull_request\": {\n    \"title\": \"feat(infra): provision orders-processing-events SQS queue via golden module\",\n    \"branch\": \"feat/orders-sqs-queue\",\n    \"target_repo\": \"org/infrastructure-live\",\n    \"assigned_reviewers\": [\n      \"@platform-engineers\"\n    ]\n  }\n}"
   },
   {
     "num": 23,
@@ -4273,9 +4278,9 @@
       "past incident history for the service"
     ],
     "tools": [
-      "Scanners (CI-internal)",
-      "VCS PR comments",
-      "Cloud read APIs (context)"
+      "Static IaC Scanners (tfsec / Checkov / KICS / Semgrep)",
+      "VCS PR Comments & Review API (GitHub / GitLab MCP)",
+      "Cloud Context & Asset Inventory API (read-only)"
     ],
     "benefits": [
       "Security signal rises above noise: short lists, real explanations.",
@@ -4307,7 +4312,8 @@
         "slug": "ai-terraform-reviewer"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ Scanners (tfsec · Checkov · KICS)                  │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Resource context enrichment                        │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← catalog · tags\n┌────────────────────────────────────────────────────┐\n│ LLM triage (dedupe · re-rank · explain)            │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Inline fixes on PR                                 │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Suppression audit (monthly)                        │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ Scanners (tfsec · Checkov · KICS)                  │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Resource context enrichment                        │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← catalog · tags\n┌────────────────────────────────────────────────────┐\n│ LLM triage (dedupe · re-rank · explain)            │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Inline fixes on PR                                 │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Suppression audit (monthly)                        │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"scan_id\": \"iac-sec-scan-8120\",\n  \"repository\": \"org/ecommerce-core-infra\",\n  \"commit_sha\": \"7b8a9f0e1c2d\",\n  \"raw_scanner_findings_count\": 42,\n  \"contextual_triaged_findings_count\": 2,\n  \"noise_reduction_percentage\": 95.2,\n  \"critical_actionable_findings\": [\n    {\n      \"finding_id\": \"CKV_AWS_144\",\n      \"rule_description\": \"Ensure S3 bucket has cross-region replication enabled\",\n      \"raw_scanner_severity\": \"HIGH\",\n      \"contextual_risk_rating\": \"CRITICAL\",\n      \"resource_address\": \"aws_s3_bucket.customer_invoices\",\n      \"risk_justification\": \"Bucket stores PCI-regulated invoice archives with no cross-region replication, violating org disaster recovery RPO standard of 15 minutes.\",\n      \"attack_or_failure_path\": \"Primary us-east-1 outage causes total invoice ingestion failure and irreversible transaction document loss.\",\n      \"suggested_hcl_fix\": \"resource \"aws_s3_bucket_replication_configuration\" \"invoices\" {\n  role   = aws_iam_role.replication.arn\n  bucket = aws_s3_bucket.customer_invoices.id\n  rule {\n    status = \"Enabled\"\n    destination {\n      bucket = aws_s3_bucket.customer_invoices_backup.arn\n    }\n  }\n}\",\n      \"rescan_verification\": \"VERIFIED_RESOLVED\"\n    }\n  ],\n  \"deprioritized_noise_summary\": [\n    {\n      \"rule_id\": \"CKV_AWS_20\",\n      \"reason_deprioritized\": \"S3 bucket customer_assets allows public read, but resource is intentionally tagged 'asset-type: public-cdn-origin' with dedicated CloudFront distribution.\"\n    }\n  ],\n  \"stale_suppressions_audit\": [\n    {\n      \"file\": \"modules/vpc/security_groups.tf\",\n      \"line\": 48,\n      \"rule_suppressed\": \"CKV_AWS_260\",\n      \"suppression_reason\": \"# checkov:skip=CKV_AWS_260: Temporary bypass for dev testing\",\n      \"age_days\": 184,\n      \"recommendation\": \"REVOKE_SUPPRESSION: Temporary bypass has exceeded 30-day policy limit.\"\n    }\n  ]\n}"
   },
   {
     "num": 24,
@@ -4319,7 +4325,7 @@
     "automation": "Assistive",
     "problem_intro": "Infrastructure documentation is written once and rots immediately; the code changes, the docs don't, and new engineers inherit folklore.",
     "problem": [
-      "Modules lack current docs: inputs, outputs, examples, and caveats live in reviewer's heads.",
+      "Modules lack current docs: inputs, outputs, examples, and caveats live in reviewers' heads.",
       "Architecture diagrams drift from reality within months.",
       "Onboarding questions repeat because knowledge isn't written down where people look.",
       "Manual docs are a chore that everyone defers."
@@ -4452,7 +4458,10 @@
       "module registry metadata"
     ],
     "tools": [
-      "VCS (read; PR write)"
+      "Terraform-docs & HCL Schema Parser",
+      "Mermaid Diagram Engine",
+      "VCS PR Creation & Review API (GitHub / GitLab MCP)",
+      "Backstage / TechDocs Publishing API"
     ],
     "benefits": [
       "Docs that are actually current — because they're generated.",
@@ -4484,7 +4493,8 @@
         "slug": "ai-terraform-reviewer"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ IaC repo scan (scheduled · push)                   │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Structure extraction (modules · vars · outputs)    │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Generator (docs · Mermaid · examples)              │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Drift diff → refresh PRs                           │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Human review · auto-merge label                    │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ IaC repo scan (scheduled · push)                   │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Structure extraction (modules · vars · outputs)    │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Generator (docs · Mermaid · examples)              │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Drift diff → refresh PRs                           │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Human review · auto-merge label                    │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"module_name\": \"terraform-aws-vpc-peering\",\n  \"module_path\": \"modules/networking/vpc-peering\",\n  \"version\": \"2.4.0\",\n  \"drift_status\": \"DOCUMENTATION_OUTDATED\",\n  \"detected_changes\": [\n    \"Added new input variable 'auto_accept_peering'\",\n    \"Added output 'peering_connection_status'\",\n    \"Removed deprecated resource 'aws_vpc_peering_connection_options'\"\n  ],\n  \"generated_artifacts\": {\n    \"readme_file\": \"modules/networking/vpc-peering/README.md\",\n    \"inputs_documented\": 7,\n    \"outputs_documented\": 3,\n    \"caveats_and_prerequisites\": [\n      \"Cross-account peering requires the acceptor role ARN to have sts:AssumeRole permissions.\",\n      \"Routes must be explicitly defined in both requester and acceptor route tables.\"\n    ],\n    \"mermaid_architecture_diagram\": \"graph LR\n  subgraph Requester_VPC [Requester VPC 10.0.0.0/16]\n    RT1[Route Table]\n  end\n  subgraph Acceptor_VPC [Acceptor VPC 172.16.0.0/16]\n    RT2[Route Table]\n  end\n  PCX[VPC Peering Connection pcx-09a8b]\n  RT1 -->|172.16.0.0/16| PCX\n  RT2 -->|10.0.0.0/16| PCX\"\n  },\n  \"adr_context_linked\": {\n    \"source_file\": \"docs/adr/0014-cross-account-peering.md\",\n    \"title\": \"ADR 0014: Standardizing Cross-Account Mesh Topology\"\n  },\n  \"pull_request\": {\n    \"branch\": \"docs/refresh-vpc-peering-v2.4.0\",\n    \"title\": \"docs(vpc-peering): auto-refresh module documentation and topology diagram\",\n    \"auto_merge_eligible\": true\n  }\n}"
   },
   {
     "num": 25,
@@ -4630,8 +4640,10 @@
       "recent change records"
     ],
     "tools": [
-      "Cloud MCP servers (describe/get/list only)",
-      "Runbook search"
+      "Cloud Provider MCP Servers (AWS / Azure / GCP read-only APIs)",
+      "Runbook & Incident Wiki Retriever (RAG)",
+      "Slack / Teams Interactive Bot",
+      "Terraform / IaC Repo Reader"
     ],
     "benefits": [
       "Expert-level cloud diagnostics for every engineer, at any hour.",
@@ -4665,7 +4677,8 @@
         "slug": "ai-iam-policy-reviewer"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ Engineer describes issue (Slack · CLI)             │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Diagnostic plan per service class                  │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Read-only cloud API fan-out                        │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← cloud MCP servers\n┌────────────────────────────────────────────────────┐\n│ Cross-resource correlation                         │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Explanation + fix steps / IaC PR                   │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ Engineer describes issue (Slack · CLI)             │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Diagnostic plan per service class                  │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Read-only cloud API fan-out                        │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← cloud MCP servers\n┌────────────────────────────────────────────────────┐\n│ Cross-resource correlation                         │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Explanation + fix steps / IaC PR                   │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"session_id\": \"cloud-triage-aws-7749\",\n  \"target_cloud\": \"AWS\",\n  \"target_resource\": \"i-098234abcf1248e\",\n  \"symptom\": \"Microservice payment-processor running on EC2 instance cannot establish connection to RDS Aurora cluster.\",\n  \"diagnostic_steps_executed\": [\n    {\n      \"step\": 1,\n      \"mcp_tool\": \"aws_describe_instances\",\n      \"parameters\": {\n        \"instance_ids\": [\n          \"i-098234abcf1248e\"\n        ]\n      },\n      \"result_status\": \"HEALTHY\",\n      \"finding\": \"Instance running in subnet-038af (VPC vpc-0129a, AZ us-east-1a).\"\n    },\n    {\n      \"step\": 2,\n      \"mcp_tool\": \"aws_describe_security_groups\",\n      \"parameters\": {\n        \"group_ids\": [\n          \"sg-081249b\"\n        ]\n      },\n      \"result_status\": \"MISCONFIGURED\",\n      \"finding\": \"Security group sg-081249b has no egress rule for TCP port 5432 to Aurora security group sg-aurora-prod.\"\n    },\n    {\n      \"step\": 3,\n      \"mcp_tool\": \"aws_describe_network_acls\",\n      \"parameters\": {\n        \"subnet_id\": \"subnet-038af\"\n      },\n      \"result_status\": \"PERMITTED\",\n      \"finding\": \"Subnet NACL permits all ephemeral ports and TCP 5432.\"\n    }\n  ],\n  \"root_cause_analysis\": {\n    \"summary\": \"Missing security group egress rule on EC2 instance security group sg-081249b.\",\n    \"culprit_layer\": \"SECURITY_GROUP\",\n    \"confidence_score\": 0.98\n  },\n  \"remediation\": {\n    \"recommended_iac_change\": \"resource \"aws_security_group_rule\" \"ec2_to_aurora\" {\n  type                     = \"egress\"\n  from_port                = 5432\n  to_port                  = 5432\n  protocol                 = \"tcp\"\n  security_group_id        = \"sg-081249b\"\n  source_security_group_id = \"sg-aurora-prod\"\n}\",\n    \"emergency_cli_command\": \"aws ec2 authorize-security-group-egress --group-id sg-081249b --protocol tcp --port 5432 --source-group sg-aurora-prod\",\n    \"verification_command\": \"aws ec2 describe-security-group-rules --filter Name=group-id,Values=sg-081249b\"\n  }\n}"
   },
   {
     "num": 26,
@@ -4810,8 +4823,10 @@
       "savings-plan/RI coverage"
     ],
     "tools": [
-      "Warehouse queries (read)",
-      "Deploy history lookup"
+      "Cloud Billing Data Warehouse (Athena / BigQuery / Snowflake PromQL / SQL read)",
+      "Kubecost / OpenCost API (container spend)",
+      "VCS Deployment & Commit History API",
+      "Slack / Email Digest Publisher"
     ],
     "benefits": [
       "Cost anomalies explained in days, not month-end.",
@@ -4843,7 +4858,8 @@
         "slug": "ai-deployment-risk-analyzer"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ Billing export + usage metrics                     │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Anomaly detection (service · team · region)        │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Cause correlation (deploys · config · usage)       │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Explained digest per team                          │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Chat drill-down ('why the increase?')              │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ Billing export + usage metrics                     │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Anomaly detection (service · team · region)        │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Cause correlation (deploys · config · usage)       │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Explained digest per team                          │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Chat drill-down ('why the increase?')              │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"report_id\": \"finops-anomaly-2026-10-W1\",\n  \"billing_period\": \"2026-10-01 to 2026-10-05\",\n  \"total_month_to_date_spend_usd\": 48290.00,\n  \"projected_eom_spend_usd\": 312000.00,\n  \"budget_forecast_variance_pct\": 24.5,\n  \"cost_anomalies_detected\": [\n    {\n      \"service\": \"AWS NAT Gateway\",\n      \"region\": \"us-east-1\",\n      \"daily_spend_baseline_usd\": 18.50,\n      \"daily_spend_current_usd\": 492.30,\n      \"increase_factor\": \"26.6x\",\n      \"root_cause_attribution\": \"EKS node group in private subnet pulling large 8GB ML container images directly from public Docker Hub via NAT Gateway instead of local ECR pull-through cache.\",\n      \"correlated_deployment\": \"Commit c4d3e2f (deploy customer-churn-ml-worker) at 2026-10-02 14:22 UTC\"\n    }\n  ],\n  \"prioritized_savings_actions\": [\n    {\n      \"priority\": 1,\n      \"action_title\": \"Configure ECR pull-through cache and VPC Gateway Endpoint for S3\",\n      \"service\": \"NAT Gateway / S3\",\n      \"monthly_savings_usd\": 14200.00,\n      \"implementation_effort\": \"LOW (2 hours)\",\n      \"target_file\": \"modules/networking/vpc_endpoints.tf\",\n      \"patch_snippet\": \"resource \"aws_vpc_endpoint\" \"s3\" {\n  vpc_id          = module.vpc.vpc_id\n  service_name    = \"com.amazonaws.us-east-1.s3\"\n  route_table_ids = module.vpc.private_route_table_ids\n}\"\n    }\n  ]\n}"
   },
   {
     "num": 27,
@@ -4984,8 +5000,9 @@
       "org role conventions"
     ],
     "tools": [
-      "Cloud read APIs (IAM, logs)",
-      "VCS PR creation"
+      "Cloud IAM APIs & Access Analyzers (AWS / Azure / GCP read-only)",
+      "CloudTrail & Activity Logs Query Engine (90-day usage)",
+      "VCS PR Creation (GitHub / GitLab MCP)"
     ],
     "benefits": [
       "Least privilege becomes maintainable instead of aspirational.",
@@ -5018,7 +5035,8 @@
         "slug": "ai-cloud-troubleshooting-assistant"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ IAM state + usage logs (read-only)                 │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Granted-vs-used analyzer                           │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ LLM risk narrative per role                        │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Tightened policy PRs                               │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← annotations + rollback plan\n┌────────────────────────────────────────────────────┐\n│ AccessDenied monitor post-merge                    │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ IAM state + usage logs (read-only)                 │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Granted-vs-used analyzer                           │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ LLM risk narrative per role                        │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Tightened policy PRs                               │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← annotations + rollback plan\n┌────────────────────────────────────────────────────┐\n│ AccessDenied monitor post-merge                    │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"review_id\": \"iam-review-role-8491\",\n  \"role_arn\": \"arn:aws:iam::123456789012:role/DocumentProcessingWorkerRole\",\n  \"account_id\": \"123456789012\",\n  \"observation_window_days\": 90,\n  \"privilege_evaluation\": {\n    \"total_actions_granted\": 148,\n    \"actions_used_in_window\": 12,\n    \"unused_permissions_percentage\": 91.9,\n    \"wildcard_actions_flagged\": [\n      \"s3:*\",\n      \"dynamodb:*\",\n      \"sqs:*\"\n    ]\n  },\n  \"escalation_risks\": [\n    {\n      \"risk_level\": \"CRITICAL\",\n      \"permission\": \"iam:PassRole\",\n      \"resource\": \"*\",\n      \"exploit_scenario\": \"Compromised document worker pod can invoke iam:PassRole with AdministratorAccess role to spin up unauthorized EC2 instances.\"\n    }\n  ],\n  \"least_privilege_policy_draft\": {\n    \"policy_name\": \"DocumentProcessingWorker-Tightened\",\n    \"json_policy\": \"{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Sid\": \"AllowSpecificS3ReadWrite\",\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"s3:GetObject\",\n        \"s3:PutObject\"\n      ],\n      \"Resource\": \"arn:aws:s3:::doc-intake-prod-us-east-1/*\"\n    },\n    {\n      \"Sid\": \"AllowQueuePolling\",\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"sqs:ReceiveMessage\",\n        \"sqs:DeleteMessage\",\n        \"sqs:GetQueueAttributes\"\n      ],\n      \"Resource\": \"arn:aws:sqs:us-east-1:123456789012:doc-processing-queue\"\n    }\n  ]\n}\"\n  },\n  \"safe_rollout_instructions\": {\n    \"strategy\": \"CANARY_SHADOW_MONITORING\",\n    \"cloudwatch_alarm\": \"DocumentProcessingWorker-AccessDenied-Spikes\",\n    \"revert_plan\": \"Re-attach original policy if AccessDenied events exceed 5 in 15 minutes.\"\n  }\n}"
   },
   {
     "num": 28,
@@ -5152,8 +5170,10 @@
       "Well-Architected frameworks"
     ],
     "tools": [
-      "Cloud read APIs",
-      "Docs/wiki search"
+      "Cloud Resource Inventory & Topology API (read-only)",
+      "Architecture Diagram & Doc Ingestion Engine (Mermaid / Structurizr / Markdown)",
+      "Well-Architected Framework Knowledge Base (RAG)",
+      "Issue Tracker API (Jira / Linear)"
     ],
     "benefits": [
       "Consistent early feedback on every significant design.",
@@ -5185,7 +5205,8 @@
         "slug": "ai-incident-investigator"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ Docs · diagrams · IaC · live state ingest          │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Pillar-by-pillar assessment                        │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← evidence-based\n┌────────────────────────────────────────────────────┐\n│ Chat tradeoff exploration                          │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Prioritized improvement roadmap                    │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Human architecture review                          │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ Docs · diagrams · IaC · live state ingest          │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Pillar-by-pillar assessment                        │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← evidence-based\n┌────────────────────────────────────────────────────┐\n│ Chat tradeoff exploration                          │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Prioritized improvement roadmap                    │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Human architecture review                          │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"assessment_id\": \"arch-review-checkout-v2\",\n  \"system_name\": \"Global Checkout Platform\",\n  \"cloud_provider\": \"AWS\",\n  \"pillar_scores\": {\n    \"security\": 92,\n    \"reliability\": 62,\n    \"performance_efficiency\": 78,\n    \"cost_optimization\": 70,\n    \"operational_excellence\": 85\n  },\n  \"critical_architectural_gaps\": [\n    {\n      \"pillar\": \"Reliability\",\n      \"finding\": \"Single-AZ RDS Database Cluster\",\n      \"severity\": \"HIGH\",\n      \"design_vs_reality_drift\": \"Architecture RFC 08 specified Multi-AZ deployment; deployed Terraform state shows Multi-AZ set to false in us-east-1a.\",\n      \"failure_mode_analysis\": \"An Availability Zone outage in us-east-1a will cause complete checkout processing failure with estimated RTO > 3 hours.\",\n      \"architectural_tradeoff\": \"Enabling Multi-AZ increases RDS database spend by $840/month but reduces failover RTO from 3 hours to 90 seconds.\"\n    }\n  ],\n  \"improvement_roadmap\": [\n    {\n      \"phase\": 1,\n      \"milestone\": \"Resilience Hardening\",\n      \"actions\": [\n        \"Enable RDS Multi-AZ failover via Terraform PR #341\",\n        \"Configure cross-zone load balancing on internal ALB\"\n      ],\n      \"target_quarter\": \"Q4-2026\"\n    }\n  ]\n}"
   },
   {
     "num": 29,
@@ -5330,8 +5351,10 @@
       "backup/DR requirements"
     ],
     "tools": [
-      "Cloud read APIs",
-      "VCS PR creation"
+      "Cloud Provider APIs (AWS / Azure / GCP inventory & CloudWatch read)",
+      "Cloud Billing & CUR Exports Query Engine",
+      "Kubecost & OpenCost API",
+      "VCS PR Creation (GitHub / GitLab MCP)"
     ],
     "benefits": [
       "Verified findings teams actually act on.",
@@ -5363,7 +5386,8 @@
         "slug": "ai-cloud-architecture-advisor"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ Cloud inventory + usage scan                       │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Candidate detection (idle · oversized · tiering)   │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ LLM verification with evidence                     │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ IaC PRs / team recommendations                     │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Savings tracking dashboard                         │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ Cloud inventory + usage scan                       │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Candidate detection (idle · oversized · tiering)   │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ LLM verification with evidence                     │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ IaC PRs / team recommendations                     │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Savings tracking dashboard                         │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"optimization_sweep_id\": \"opt-sweep-2026-10-06\",\n  \"cloud_provider\": \"AWS\",\n  \"verified_monthly_savings_usd\": 4850.00,\n  \"confidence_threshold\": 0.95,\n  \"verified_waste_findings\": [\n    {\n      \"resource_id\": \"vol-0849204821a\",\n      \"resource_type\": \"EBS Volume\",\n      \"size_gb\": 1000,\n      \"monthly_cost_usd\": 120.00,\n      \"days_unattached\": 62,\n      \"owner\": \"data-engineering\",\n      \"verification_evidence\": \"Volume has remained in 'available' unattached state with 0 IOPS for 62 days. No snapshot retention tags.\",\n      \"compliance_check\": \"PASSED (No legal hold or audit tags)\",\n      \"recommended_action\": \"CREATE_FINAL_SNAPSHOT_AND_DELETE\",\n      \"remediation_iac_pr\": \"https://github.com/org/infra/pull/948\"\n    },\n    {\n      \"resource_id\": \"eipalloc-0192482\",\n      \"resource_type\": \"Unassociated Elastic IP\",\n      \"monthly_cost_usd\": 7.30,\n      \"days_unassociated\": 94,\n      \"owner\": \"legacy-vpn\",\n      \"verification_evidence\": \"Elastic IP unassociated with any ENI since migration to AWS Client VPN 3 months ago.\",\n      \"recommended_action\": \"RELEASE_IP\"\n    }\n  ],\n  \"rejected_waste_candidates\": [\n    {\n      \"resource_id\": \"i-09f1823908\",\n      \"reason_rejected\": \"Instance exhibits 0% CPU utilization over 14 days, but is verified as an active warm-standby DR node for payment routing.\"\n    }\n  ]\n}"
   },
   {
     "num": 30,
@@ -5522,8 +5546,10 @@
       "runbook corpus"
     ],
     "tools": [
-      "mcp-grafana (read)",
-      "Deploy history (read)"
+      "Alertmanager & PagerDuty Webhook API",
+      "Grafana MCP (Prometheus metrics & Loki logs read)",
+      "VCS & CI/CD Deployment History API",
+      "Runbook Knowledge Base (Vector RAG)"
     ],
     "benefits": [
       "Responders start with a briefing, not a symptom.",
@@ -5556,7 +5582,8 @@
         "slug": "ai-anomaly-investigation-agent"
       }
     ],
-    "diagram": "┌────────────────────────────────────────────────────┐\n│ Alert webhook                                      │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Service resolution (catalog · labels)              │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Bounded investigation (metrics · logs · deploys)   │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← 30-60s budget\n┌────────────────────────────────────────────────────┐\n│ Context card + first hypothesis                    │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Page + thread (correlated)                         │\n└────────────────────────────────────────────────────┘"
+    "diagram": "┌────────────────────────────────────────────────────┐\n│ Alert webhook                                      │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Service resolution (catalog · labels)              │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Bounded investigation (metrics · logs · deploys)   │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼  ← 30-60s budget\n┌────────────────────────────────────────────────────┐\n│ Context card + first hypothesis                    │\n└────────────────────────────────────────────────────┘\n                          │\n                          ▼\n┌────────────────────────────────────────────────────┐\n│ Page + thread (correlated)                         │\n└────────────────────────────────────────────────────┘",
+    "schema": "{\n  \"alert_id\": \"alert-k8s-ingress-5xx-91823\",\n  \"alert_name\": \"High5xxErrorRateSpike\",\n  \"service\": \"customer-api-gateway\",\n  \"severity\": \"CRITICAL\",\n  \"investigation_latency_seconds\": 28,\n  \"telemetry_context\": {\n    \"error_rate_current_pct\": 14.8,\n    \"error_rate_baseline_pct\": 0.04,\n    \"p99_latency_ms\": 3200,\n    \"affected_http_status\": \"502 Bad Gateway\",\n    \"top_error_log_signature\": \"upstream connect error or disconnect/reset before headers\"\n  },\n  \"change_correlation\": {\n    \"recent_deployments\": [\n      {\n        \"service\": \"customer-api-gateway\",\n        \"version\": \"v2.18.2\",\n        \"deployed_at\": \"12 minutes ago\",\n        \"deployer\": \"github-actions-bot\",\n        \"commit_message\": \"feat: introduce connection keep-alive pool timeout\"\n      }\n    ]\n  },\n  \"top_ranked_hypotheses\": [\n    {\n      \"rank\": 1,\n      \"confidence_score\": 0.93,\n      \"hypothesis\": \"Keep-alive idle timeout mismatch between API Gateway (60s) and downstream customer-service (15s) causes gateway to send requests over closed connections.\",\n      \"supporting_evidence\": \"502 Bad Gateway surge began exactly 60 seconds after v2.18.2 canary reached 50% traffic.\"\n    }\n  ],\n  \"matched_runbook\": {\n    \"title\": \"API Gateway 502 Upstream Connection Troubleshooting\",\n    \"url\": \"https://wiki.corp.internal/sre/runbooks/api-gateway-502\",\n    \"key_step_excerpt\": \"Verify that gateway idleTimeout is strictly lower than downstream service server.keepAliveTimeout.\"\n  },\n  \"suggested_first_action\": \"Roll back deployment v2.18.2 via GitOps PR or adjust upstream keep-alive timeout to 10s.\"\n}"
   },
   {
     "num": 31,

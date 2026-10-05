@@ -53,7 +53,60 @@ On PRs and scheduled scans, run tfsec/Checkov/KICS as usual, then let an LLM tri
 3. The triage engine produces a short, ranked, explained list.
 4. Fixes appear inline; suppression hygiene is reviewed periodically.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "scan_id": "iac-sec-scan-8120",
+  "repository": "org/ecommerce-core-infra",
+  "commit_sha": "7b8a9f0e1c2d",
+  "raw_scanner_findings_count": 42,
+  "contextual_triaged_findings_count": 2,
+  "noise_reduction_percentage": 95.2,
+  "critical_actionable_findings": [
+    {
+      "finding_id": "CKV_AWS_144",
+      "rule_description": "Ensure S3 bucket has cross-region replication enabled",
+      "raw_scanner_severity": "HIGH",
+      "contextual_risk_rating": "CRITICAL",
+      "resource_address": "aws_s3_bucket.customer_invoices",
+      "risk_justification": "Bucket stores PCI-regulated invoice archives with no cross-region replication, violating org disaster recovery RPO standard of 15 minutes.",
+      "attack_or_failure_path": "Primary us-east-1 outage causes total invoice ingestion failure and irreversible transaction document loss.",
+      "suggested_hcl_fix": "resource "aws_s3_bucket_replication_configuration" "invoices" {
+  role   = aws_iam_role.replication.arn
+  bucket = aws_s3_bucket.customer_invoices.id
+  rule {
+    status = "Enabled"
+    destination {
+      bucket = aws_s3_bucket.customer_invoices_backup.arn
+    }
+  }
+}",
+      "rescan_verification": "VERIFIED_RESOLVED"
+    }
+  ],
+  "deprioritized_noise_summary": [
+    {
+      "rule_id": "CKV_AWS_20",
+      "reason_deprioritized": "S3 bucket customer_assets allows public read, but resource is intentionally tagged 'asset-type: public-cdn-origin' with dedicated CloudFront distribution."
+    }
+  ],
+  "stale_suppressions_audit": [
+    {
+      "file": "modules/vpc/security_groups.tf",
+      "line": 48,
+      "rule_suppressed": "CKV_AWS_260",
+      "suppression_reason": "# checkov:skip=CKV_AWS_260: Temporary bypass for dev testing",
+      "age_days": 184,
+      "recommendation": "REVOKE_SUPPRESSION: Temporary bypass has exceeded 30-day policy limit."
+    }
+  ]
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -65,7 +118,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | Model routing & AI gateways | LiteLLM · OpenRouter · Portkey · Kong AI Gateway · Cloudflare AI Gateway | provider-agnostic routing with fallbacks, budgets, caching, and audit logs |
 | AI observability & evaluation | Langfuse · Arize Phoenix · LangSmith · W&B Weave · OpenTelemetry GenAI conventions · promptfoo | tracing of every model and tool call, cost/latency tracking, prompt regression evals |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -76,29 +129,29 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `existing suppressions`
 * `past incident history for the service`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 Security engineers set triage policy; PR findings are advisory until teams opt into gates on the top severity class.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
 * The LLM's re-ranking must never auto-dismiss findings silently — dismissals are recorded with rationale and reviewable.
 * Policy-as-code stays the enforcement layer; this system advises humans who then set policy.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 Start as a stateless service (or even a CLI) invoked by webhooks, schedules, or chat commands. Containerize it, give it read-only credentials scoped to one system, and only graduate to a long-running agent with an approval queue once precision is trusted.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Events are batch-shaped and bursts follow working hours, so spend is spiky but low. Mini/flash-class models typically handle triage at a fraction of a cent per event; a frontier model is reserved for the deep-analysis step, and an open-weight model via Ollama or vLLM can bring marginal cost to zero at the price of self-hosting.
 
-## 12. Related Ideas
+## 13. Related Ideas
 
-- [40 · AI Cloud Misconfiguration Analyzer](../40-ai-cloud-misconfiguration-analyzer/README.md)
-- [38 · AI Kubernetes Security Analyzer](../38-ai-kubernetes-security-analyzer/README.md)
-- [03 · AI Terraform Reviewer](../03-ai-terraform-reviewer/README.md)
+- [40 · AI Cloud Misconfiguration Analyzer](../../40-ai-cloud-misconfiguration-analyzer/README.md)
+- [38 · AI Kubernetes Security Analyzer](../../38-ai-kubernetes-security-analyzer/README.md)
+- [03 · AI Terraform Reviewer](../../03-ai-terraform-reviewer/README.md)

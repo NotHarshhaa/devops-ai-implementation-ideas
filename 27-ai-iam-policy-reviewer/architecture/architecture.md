@@ -53,7 +53,70 @@ A policy review service that ingests policies, trust relationships, access-analy
 3. The model explains each role's real risk and drafts tighter policies.
 4. PRs are reviewed and merged; monitoring catches over-tightening with a rollback path.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "review_id": "iam-review-role-8491",
+  "role_arn": "arn:aws:iam::123456789012:role/DocumentProcessingWorkerRole",
+  "account_id": "123456789012",
+  "observation_window_days": 90,
+  "privilege_evaluation": {
+    "total_actions_granted": 148,
+    "actions_used_in_window": 12,
+    "unused_permissions_percentage": 91.9,
+    "wildcard_actions_flagged": [
+      "s3:*",
+      "dynamodb:*",
+      "sqs:*"
+    ]
+  },
+  "escalation_risks": [
+    {
+      "risk_level": "CRITICAL",
+      "permission": "iam:PassRole",
+      "resource": "*",
+      "exploit_scenario": "Compromised document worker pod can invoke iam:PassRole with AdministratorAccess role to spin up unauthorized EC2 instances."
+    }
+  ],
+  "least_privilege_policy_draft": {
+    "policy_name": "DocumentProcessingWorker-Tightened",
+    "json_policy": "{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowSpecificS3ReadWrite",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject"
+      ],
+      "Resource": "arn:aws:s3:::doc-intake-prod-us-east-1/*"
+    },
+    {
+      "Sid": "AllowQueuePolling",
+      "Effect": "Allow",
+      "Action": [
+        "sqs:ReceiveMessage",
+        "sqs:DeleteMessage",
+        "sqs:GetQueueAttributes"
+      ],
+      "Resource": "arn:aws:sqs:us-east-1:123456789012:doc-processing-queue"
+    }
+  ]
+}"
+  },
+  "safe_rollout_instructions": {
+    "strategy": "CANARY_SHADOW_MONITORING",
+    "cloudwatch_alarm": "DocumentProcessingWorker-AccessDenied-Spikes",
+    "revert_plan": "Re-attach original policy if AccessDenied events exceed 5 in 15 minutes."
+  }
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -65,7 +128,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | Model routing & AI gateways | LiteLLM · OpenRouter · Portkey · Kong AI Gateway · Cloudflare AI Gateway | provider-agnostic routing with fallbacks, budgets, caching, and audit logs |
 | AI observability & evaluation | Langfuse · Arize Phoenix · LangSmith · W&B Weave · OpenTelemetry GenAI conventions · promptfoo | tracing of every model and tool call, cost/latency tracking, prompt regression evals |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -75,30 +138,30 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `resource sensitivity classifications`
 * `org role conventions`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 All tightening via PR review; security and service owners co-approve. Analyzer never edits IAM directly.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
 * The reviewer has read-only access; generated policies go through full human review — an automated IAM change is its own incident class.
 * Usage logs may contain sensitive resource identifiers: redact before model calls.
 * Beware learned over-fitting: deny recommendations must consider break-glass and seasonal patterns.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 Start as a stateless service (or even a CLI) invoked by webhooks, schedules, or chat commands. Containerize it, give it read-only credentials scoped to one system, and only graduate to a long-running agent with an approval queue once precision is trusted.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Events are batch-shaped and bursts follow working hours, so spend is spiky but low. Mini/flash-class models typically handle triage at a fraction of a cent per event; a frontier model is reserved for the deep-analysis step, and an open-weight model via Ollama or vLLM can bring marginal cost to zero at the price of self-hosting.
 
-## 12. Related Ideas
+## 13. Related Ideas
 
-- [40 · AI Cloud Misconfiguration Analyzer](../40-ai-cloud-misconfiguration-analyzer/README.md)
-- [41 · AI Security Incident Assistant](../41-ai-security-incident-assistant/README.md)
-- [25 · AI Cloud Troubleshooting Assistant](../25-ai-cloud-troubleshooting-assistant/README.md)
+- [40 · AI Cloud Misconfiguration Analyzer](../../40-ai-cloud-misconfiguration-analyzer/README.md)
+- [41 · AI Security Incident Assistant](../../41-ai-security-incident-assistant/README.md)
+- [25 · AI Cloud Troubleshooting Assistant](../../25-ai-cloud-troubleshooting-assistant/README.md)

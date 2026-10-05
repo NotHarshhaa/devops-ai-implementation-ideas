@@ -109,8 +109,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Cloud read APIs
-* VCS PR creation
+* Cloud Provider APIs (AWS / Azure / GCP inventory & CloudWatch read)
+* Cloud Billing & CUR Exports Query Engine
+* Kubecost & OpenCost API
+* VCS PR Creation (GitHub / GitLab MCP)
 
 ## ✅ Expected Benefits
 
@@ -130,10 +132,10 @@ Exposed to the model with scoped, read-first permissions:
 
 ## 🔗 Related Ideas
 
-- [15 · AI Resource Optimization Advisor](../15-ai-kubernetes-resource-optimization-advisor/README.md)
+- [15 · AI Kubernetes Resource Optimization Advisor](../15-ai-kubernetes-resource-optimization-advisor/README.md)
 - [26 · AI Cloud Cost Analysis Assistant](../26-ai-cloud-cost-analysis-assistant/README.md)
 - [28 · AI Cloud Architecture Advisor](../28-ai-cloud-architecture-advisor/README.md)
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

@@ -112,8 +112,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* mcp-grafana (read)
-* Deploy history (read)
+* Alertmanager & PagerDuty Webhook API
+* Grafana MCP (Prometheus metrics & Loki logs read)
+* VCS & CI/CD Deployment History API
+* Runbook Knowledge Base (Vector RAG)
 
 ## ✅ Expected Benefits
 
@@ -140,4 +142,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

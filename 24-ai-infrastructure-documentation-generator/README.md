@@ -17,7 +17,7 @@
 
 Infrastructure documentation is written once and rots immediately; the code changes, the docs don't, and new engineers inherit folklore.
 
-* Modules lack current docs: inputs, outputs, examples, and caveats live in reviewer's heads.
+* Modules lack current docs: inputs, outputs, examples, and caveats live in reviewers' heads.
 * Architecture diagrams drift from reality within months.
 * Onboarding questions repeat because knowledge isn't written down where people look.
 * Manual docs are a chore that everyone defers.
@@ -109,7 +109,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* VCS (read; PR write)
+* Terraform-docs & HCL Schema Parser
+* Mermaid Diagram Engine
+* VCS PR Creation & Review API (GitHub / GitLab MCP)
+* Backstage / TechDocs Publishing API
 
 ## ✅ Expected Benefits
 
@@ -135,4 +138,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

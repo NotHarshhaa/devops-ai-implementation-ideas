@@ -109,8 +109,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Cloud MCP servers (describe/get/list only)
-* Runbook search
+* Cloud Provider MCP Servers (AWS / Azure / GCP read-only APIs)
+* Runbook & Incident Wiki Retriever (RAG)
+* Slack / Teams Interactive Bot
+* Terraform / IaC Repo Reader
 
 ## ✅ Expected Benefits
 
@@ -138,4 +140,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

@@ -109,8 +109,10 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Warehouse queries (read)
-* Deploy history lookup
+* Cloud Billing Data Warehouse (Athena / BigQuery / Snowflake PromQL / SQL read)
+* Kubecost / OpenCost API (container spend)
+* VCS Deployment & Commit History API
+* Slack / Email Digest Publisher
 
 ## ✅ Expected Benefits
 
@@ -130,10 +132,10 @@ Exposed to the model with scoped, read-first permissions:
 
 ## 🔗 Related Ideas
 
-- [15 · AI Resource Optimization Advisor](../15-ai-kubernetes-resource-optimization-advisor/README.md)
+- [15 · AI Kubernetes Resource Optimization Advisor](../15-ai-kubernetes-resource-optimization-advisor/README.md)
 - [29 · AI Cloud Resource Optimization Assistant](../29-ai-cloud-resource-optimization-assistant/README.md)
 - [08 · AI Deployment Risk Analyzer](../08-ai-deployment-risk-analyzer/README.md)
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

@@ -104,7 +104,9 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* VCS PR comments; run APIs (read)
+* Terraform & OpenTofu CLI (plan JSON parser)
+* VCS PR Comments & Review API (GitHub / GitLab MCP)
+* Terraform Cloud / Spacelift Run API (read)
 
 ## ✅ Expected Benefits
 
@@ -130,4 +132,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*

@@ -53,7 +53,53 @@ A scheduled/push-based generator walks IaC repos, extracts structure (via terraf
 3. Diffs become refresh PRs; drift summary is reported.
 4. Reviews keep narrative quality; mechanical updates can auto-merge.
 
-## 5. AI Platform Mapping
+## 5. Example Structured Output Schema
+
+The model responds with a validated JSON payload conforming to a strict schema:
+
+```json
+{
+  "module_name": "terraform-aws-vpc-peering",
+  "module_path": "modules/networking/vpc-peering",
+  "version": "2.4.0",
+  "drift_status": "DOCUMENTATION_OUTDATED",
+  "detected_changes": [
+    "Added new input variable 'auto_accept_peering'",
+    "Added output 'peering_connection_status'",
+    "Removed deprecated resource 'aws_vpc_peering_connection_options'"
+  ],
+  "generated_artifacts": {
+    "readme_file": "modules/networking/vpc-peering/README.md",
+    "inputs_documented": 7,
+    "outputs_documented": 3,
+    "caveats_and_prerequisites": [
+      "Cross-account peering requires the acceptor role ARN to have sts:AssumeRole permissions.",
+      "Routes must be explicitly defined in both requester and acceptor route tables."
+    ],
+    "mermaid_architecture_diagram": "graph LR
+  subgraph Requester_VPC [Requester VPC 10.0.0.0/16]
+    RT1[Route Table]
+  end
+  subgraph Acceptor_VPC [Acceptor VPC 172.16.0.0/16]
+    RT2[Route Table]
+  end
+  PCX[VPC Peering Connection pcx-09a8b]
+  RT1 -->|172.16.0.0/16| PCX
+  RT2 -->|10.0.0.0/16| PCX"
+  },
+  "adr_context_linked": {
+    "source_file": "docs/adr/0014-cross-account-peering.md",
+    "title": "ADR 0014: Standardizing Cross-Account Mesh Topology"
+  },
+  "pull_request": {
+    "branch": "docs/refresh-vpc-peering-v2.4.0",
+    "title": "docs(vpc-peering): auto-refresh module documentation and topology diagram",
+    "auto_merge_eligible": true
+  }
+}
+```
+
+## 6. AI Platform Mapping
 
 The design is provider-agnostic; any layer can be swapped without touching the others.
 
@@ -65,7 +111,7 @@ The design is provider-agnostic; any layer can be swapped without touching the o
 | Model routing & AI gateways | LiteLLM · OpenRouter · Portkey · Kong AI Gateway · Cloudflare AI Gateway | provider-agnostic routing with fallbacks, budgets, caching, and audit logs |
 | AI observability & evaluation | Langfuse · Arize Phoenix · LangSmith · W&B Weave · OpenTelemetry GenAI conventions · promptfoo | tracing of every model and tool call, cost/latency tracking, prompt regression evals |
 
-## 6. Context Building Strategy
+## 7. Context Building Strategy
 
 The context builder assembles only what the model needs — fresh, relevant, and redacted — rather than dumping raw system output. Sources:
 
@@ -75,29 +121,29 @@ The context builder assembles only what the model needs — fresh, relevant, and
 * `existing docs`
 * `module registry metadata`
 
-## 7. Human-in-the-Loop & Approval
+## 8. Human-in-the-Loop & Approval
 
 Doc PRs reviewed like code; mechanical regeneration can auto-merge under label policy.
 
-## 8. Security Considerations
+## 9. Security Considerations
 
 * Never render secret values in docs; schema-only extraction with redaction tests in CI.
 * Public-repo publishing needs an explicit allowlist per module.
 
-## 9. AI Observability
+## 10. AI Observability
 
 Every prompt, completion, and tool call is traced with OpenTelemetry GenAI conventions into Langfuse or Arize Phoenix: latency, token cost, retrieval hits, tool errors, and human accept/reject outcomes become the eval dataset that gates prompt and model changes (promptfoo regression suites run in CI before any prompt ships).
 
-## 10. Deployment & Scaling
+## 11. Deployment & Scaling
 
 Start as a stateless service (or even a CLI) invoked by webhooks, schedules, or chat commands. Containerize it, give it read-only credentials scoped to one system, and only graduate to a long-running agent with an approval queue once precision is trusted.
 
-## 11. Cost Considerations
+## 12. Cost Considerations
 
 Events are batch-shaped and bursts follow working hours, so spend is spiky but low. Mini/flash-class models typically handle triage at a fraction of a cent per event; a frontier model is reserved for the deep-analysis step, and an open-weight model via Ollama or vLLM can bring marginal cost to zero at the price of self-hosting.
 
-## 12. Related Ideas
+## 13. Related Ideas
 
-- [43 · AI DevOps Documentation Generator](../43-ai-devops-documentation-generator/README.md)
-- [22 · Natural Language → Terraform](../22-natural-language-to-terraform/README.md)
-- [03 · AI Terraform Reviewer](../03-ai-terraform-reviewer/README.md)
+- [43 · AI DevOps Documentation Generator](../../43-ai-devops-documentation-generator/README.md)
+- [22 · Natural Language → Terraform](../../22-natural-language-to-terraform/README.md)
+- [03 · AI Terraform Reviewer](../../03-ai-terraform-reviewer/README.md)

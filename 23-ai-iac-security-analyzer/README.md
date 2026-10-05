@@ -110,9 +110,9 @@ Full component breakdown, data flow, and platform mapping: [`architecture/archit
 
 Exposed to the model with scoped, read-first permissions:
 
-* Scanners (CI-internal)
-* VCS PR comments
-* Cloud read APIs (context)
+* Static IaC Scanners (tfsec / Checkov / KICS / Semgrep)
+* VCS PR Comments & Review API (GitHub / GitLab MCP)
+* Cloud Context & Asset Inventory API (read-only)
 
 ## ✅ Expected Benefits
 
@@ -138,4 +138,4 @@ Exposed to the model with scoped, read-first permissions:
 
 ---
 
-*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../../README.md#-idea-catalog) for all ideas.*
+*Status: 📐 Architecture documented — no implementation code yet. See the [idea catalog](../README.md#-idea-catalog) for all ideas.*
