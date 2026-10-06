@@ -417,6 +417,7 @@ button {
 .terminal-body .t-ok { color: var(--color-outline-aqua); }
 .terminal-body .t-key { color: var(--color-butler-teal); }
 .terminal-body .t-val { color: var(--color-white); }
+.terminal-body .t-cmd { color: var(--color-white); }
 
 .cursor {
   display: inline-block;
@@ -445,6 +446,8 @@ button {
 @media (prefers-reduced-motion: reduce) {
   .cursor { animation: none; }
   .terminal-body .t-line { animation: none; opacity: 1; }
+  .demo-line { animation: none; opacity: 1; }
+  .marquee-track { animation: none; }
   .card { animation: none; }
   .reveal { opacity: 1; transform: none; transition: none; }
   .btn:active { transform: none; }
@@ -1162,6 +1165,148 @@ mark {
 }
 
 .modal-foot .pill:hover { border-color: var(--color-ink); color: var(--color-ink); }
+
+/* ---- Platform ticker ---- */
+
+.marquee {
+  overflow: hidden;
+  border-top: 1px solid var(--color-rule-gray);
+  border-bottom: 1px solid var(--color-rule-gray);
+  padding: 18px 0;
+  background: var(--color-white);
+}
+
+.marquee-track {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  width: max-content;
+  animation: marquee-scroll 48s linear infinite;
+}
+
+.marquee:hover .marquee-track { animation-play-state: paused; }
+
+.marquee-item {
+  font-family: var(--font-geist-mono);
+  font-size: 13px;
+  color: var(--color-warm-gray);
+}
+
+.marquee-item .sep {
+  font-style: normal;
+  color: var(--color-butler-teal);
+  margin: 0 22px;
+  font-size: 11px;
+}
+
+@keyframes marquee-scroll {
+  to { transform: translateX(-50%); }
+}
+
+/* ---- Living demos ---- */
+
+.demo-terminal { max-width: 860px; }
+
+.demo-terminal .terminal-body { min-height: 300px; }
+
+.demo-line {
+  display: inline-block;
+  opacity: 0;
+  animation: line-in 0.25s ease forwards;
+}
+
+/* ---- Idea atlas ---- */
+
+.atlas-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-bottom: 24px;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-geist-mono);
+  font-size: 12px;
+  color: var(--color-warm-gray);
+}
+
+.legend-item .swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  border: 1px solid var(--color-rule-gray);
+}
+
+.atlas-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 6px;
+}
+
+@media (max-width: 900px) { .atlas-grid { grid-template-columns: repeat(5, 1fr); } }
+@media (max-width: 520px) { .atlas-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.atlas-cell {
+  aspect-ratio: 1;
+  border: 1px solid var(--color-rule-gray);
+  border-radius: 6px;
+  font-family: var(--font-geist-mono);
+  font-size: 13px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.atlas-cell:hover { transform: scale(1.15); z-index: 5; box-shadow: 0 4px 14px rgba(28, 25, 23, 0.18); }
+
+/* area colors — the palette repurposed as a categorical scale */
+.ac-teal         { background: var(--color-butler-teal);    color: var(--color-white); }
+.ac-charcoal     { background: var(--color-charcoal);       color: var(--color-aqua-mist); border-color: var(--color-charcoal); }
+.ac-deepteal     { background: var(--color-deep-teal);      color: var(--color-white); }
+.ac-graphite     { background: var(--color-deep-graphite);  color: var(--color-aqua-mist); border-color: var(--color-deep-graphite); }
+.ac-outlineaqua  { background: var(--color-outline-aqua);   color: var(--color-ink); }
+.ac-amidtone     { background: var(--color-aqua-midtone);   color: var(--color-ink); }
+.ac-warmgray     { background: var(--color-warm-gray);      color: var(--color-white); border-color: var(--color-warm-gray); }
+.ac-mist         { background: var(--color-aqua-mist);      color: var(--color-deep-teal); }
+.ac-steel        { background: var(--color-steel);          color: var(--color-charcoal); border-color: var(--color-steel); }
+.ac-rule         { background: var(--color-rule-gray);      color: var(--color-ink); }
+
+/* hover tooltip with the idea name */
+.atlas-cell::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-charcoal);
+  color: var(--color-white);
+  font-family: var(--font-geist-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  padding: 6px 10px;
+  border-radius: 6px;
+  width: max-content;
+  max-width: 230px;
+  text-align: center;
+  white-space: normal;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+  z-index: 6;
+}
+
+.atlas-cell:hover::after,
+.atlas-cell:focus-visible::after { opacity: 1; }
+
+@media (max-width: 520px) {
+  .atlas-cell::after { display: none; }
+}
 
 /* ---- Teal conversion card ---- */
 

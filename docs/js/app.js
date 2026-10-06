@@ -375,7 +375,7 @@
     if (prefersReducedMotion || !("IntersectionObserver" in window)) return;
     var targets = document.querySelectorAll(
       ".hero-badges, .hero .display, .hero-sub, .hero-actions, .terminal, " +
-      ".section-head, .hairline-grid, .catalog-toolbar, .cta"
+      ".section-head, .hairline-grid, .catalog-toolbar, .cta, .marquee, .demo-terminal, .atlas-grid"
     );
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
@@ -442,6 +442,202 @@
 
 
 
+  /* ---------- living demos (animated, looping terminal walk-throughs) ---------- */
+
+  var DEMOS = [
+    {
+      title: "ai-devops — idea 02 · kubernetes troubleshooter",
+      lines: [
+        '<span class="t-prompt">$</span> <span class="t-cmd">ai-devops k8s investigate --pod checkout-api-7f2</span>',
+        '<span class="t-ok">✔</span> events: <span class="t-val">CrashLoopBackOff · 12 restarts in 34 min</span>',
+        '<span class="t-ok">✔</span> logs: <span class="t-val">tail 2,000 → 41 relevant</span> <span class="t-dim">· secrets redacted</span>',
+        '<span class="t-ok">✔</span> owner chain: <span class="t-arg">deploy/checkout-api → replicaset → pod</span>',
+        '<span class="t-dim">&nbsp;</span>',
+        '&nbsp;&nbsp;<span class="t-key">root cause</span>&nbsp;&nbsp;<span class="t-val">liveness probe targets :8080</span>',
+        '&nbsp;&nbsp;<span class="t-key">evidence</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-val">container listens on :3000 (NODE_PORT)</span>',
+        '&nbsp;&nbsp;<span class="t-key">suggestion</span>&nbsp;&nbsp;<span class="t-val">probe port 3000 · path /healthz</span>',
+        '<span class="t-dim">&nbsp;</span>',
+        '<span class="t-dim">→ fix drafted as PR #847 — awaiting human review</span>'
+      ]
+    },
+    {
+      title: "ai-devops — idea 21 · terraform plan explainer",
+      lines: [
+        '<span class="t-prompt">$</span> <span class="t-cmd">ai-devops tf explain --plan main.tfplan</span>',
+        '<span class="t-ok">✔</span> parsed: <span class="t-val">42 resources · 3 to change · 1 to replace</span>',
+        '<span class="t-ok">✔</span> policy check: <span class="t-val">0 violations</span> <span class="t-dim">· state backup verified</span>',
+        '<span class="t-dim">&nbsp;</span>',
+        '&nbsp;&nbsp;<span class="t-key">⚠ replace</span>&nbsp;&nbsp;&nbsp;<span class="t-val">aws_instance.web (ami-0a1b → ami-0c2d)</span>',
+        '&nbsp;&nbsp;<span class="t-key">impact</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-val">~2 min downtime · public IP changes</span>',
+        '&nbsp;&nbsp;<span class="t-key">suggestion</span>&nbsp;&nbsp;<span class="t-val">create_before_destroy + elastic IP</span>',
+        '<span class="t-dim">&nbsp;</span>',
+        '<span class="t-dim">→ explanation posted to PR #311 — awaiting human review</span>'
+      ]
+    },
+    {
+      title: "ai-devops — idea 36 · postmortem generator",
+      lines: [
+        '<span class="t-prompt">$</span> <span class="t-cmd">ai-devops postmortem --incident INC-2291 --window 4h</span>',
+        '<span class="t-ok">✔</span> timeline: <span class="t-val">14 events from PagerDuty + Slack + deploys</span>',
+        '<span class="t-ok">✔</span> factors: <span class="t-val">3 contributing · blast radius: checkout + cart</span>',
+        '<span class="t-ok">✔</span> similar past incidents: <span class="t-arg">2 (2025-Q3)</span>',
+        '<span class="t-dim">&nbsp;</span>',
+        '&nbsp;&nbsp;<span class="t-key">impact</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-val">23 min degraded checkout · 1,140 users</span>',
+        '&nbsp;&nbsp;<span class="t-key">action items</span>&nbsp;<span class="t-val">5 drafted · owners from CODEOWNERS</span>',
+        '<span class="t-dim">&nbsp;</span>',
+        '<span class="t-dim">→ draft ready in /postmortems/INC-2291.md — for human edit &amp; sign-off</span>'
+      ]
+    }
+  ];
+
+  var demoIdx = 0, demoToken = 0, demoInView = false;
+
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  function renderDemoTabs() {
+    var el = $("demo-tabs");
+    if (!el) return;
+    var labels = ["idea 02 · k8s troubleshooter", "idea 21 · tf plan explainer", "idea 36 · postmortem generator"];
+    el.innerHTML = DEMOS.map(function (d, i) {
+      return '<button role="tab" aria-selected="' + (i === 0 ? "true" : "false") +
+        '" data-demo="' + i + '" class="' + (i === 0 ? "active" : "") + '">' + labels[i] + "</button>";
+    }).join("");
+    el.onclick = function (e) {
+      var btn = e.target.closest("button[data-demo]");
+      if (!btn) return;
+      playDemo(parseInt(btn.getAttribute("data-demo"), 10));
+    };
+  }
+
+  async function playDemo(idx) {
+    var token = ++demoToken;
+    demoIdx = idx;
+    var demo = DEMOS[idx];
+    var body = $("demo-body");
+    if (!body) return;
+    $("demo-title").textContent = demo.title;
+    Array.prototype.forEach.call(document.querySelectorAll("#demo-tabs button"), function (t, i) {
+      t.classList.toggle("active", i === idx);
+      t.setAttribute("aria-selected", i === idx ? "true" : "false");
+    });
+    body.innerHTML = "";
+
+    if (prefersReducedMotion || !demoInView) {
+      body.innerHTML = demo.lines.join("<br>") + '<span class="cursor"></span>';
+      return;
+    }
+
+    for (var i = 0; i < demo.lines.length; i++) {
+      if (token !== demoToken) return;
+      if (i > 0) body.appendChild(document.createElement("br"));
+      if (i === 0) {
+        // command line: type it out character by character
+        var wrap = document.createElement("span");
+        wrap.innerHTML = demo.lines[0];
+        var target = wrap.querySelector(".t-cmd");
+        var cmdText = target.textContent;
+        target.textContent = "";
+        body.appendChild(wrap);
+        for (var c = 0; c < cmdText.length; c++) {
+          if (token !== demoToken) return;
+          target.textContent += cmdText[c];
+          await sleep(24);
+        }
+      } else {
+        var span = document.createElement("span");
+        span.className = "demo-line";
+        span.innerHTML = demo.lines[i];
+        body.appendChild(span);
+        await sleep(i === demo.lines.length - 1 ? 500 : 430);
+      }
+    }
+    body.appendChild(document.createElement("br"));
+    var cur = document.createElement("span");
+    cur.className = "cursor";
+    body.appendChild(cur);
+
+    // hold, then loop like a gif
+    await sleep(5200);
+    if (token === demoToken && demoInView && !document.hidden) playDemo(idx);
+  }
+
+  function initDemos() {
+    if (!$("demo-body")) return;
+    renderDemoTabs();
+    if (!("IntersectionObserver" in window)) {
+      $("demo-body").innerHTML = DEMOS[0].lines.join("<br>") + '<span class="cursor"></span>';
+      $("demo-title").textContent = DEMOS[0].title;
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        demoInView = entry.isIntersecting;
+        if (entry.isIntersecting) playDemo(demoIdx);
+        else demoToken++; // stop playback while off-screen
+      });
+    }, { threshold: 0.25 });
+    io.observe($("demo-body"));
+    document.addEventListener("visibilitychange", function () {
+      if (!document.hidden && demoInView) playDemo(demoIdx);
+      else demoToken++;
+    });
+  }
+
+  /* ---------- idea atlas (50-cell mosaic, colored by area) ---------- */
+
+  var AREA_COLORS = {
+    "CI/CD": "ac-teal",
+    "Kubernetes": "ac-charcoal",
+    "IaC": "ac-deepteal",
+    "Cloud": "ac-graphite",
+    "Observability & SRE": "ac-outlineaqua",
+    "SRE": "ac-amidtone",
+    "DevSecOps": "ac-warmgray",
+    "Developer Experience": "ac-mist",
+    "Platform Engineering": "ac-steel",
+    "Agentic DevOps": "ac-rule"
+  };
+
+  function renderAtlas() {
+    var grid = $("atlas-grid");
+    var legend = $("atlas-legend");
+    if (!grid) return;
+    grid.innerHTML = IDEAS.map(function (i) {
+      return '<button class="atlas-cell ' + (AREA_COLORS[i.area] || "ac-rule") +
+        '" data-idea="' + i.num + '" data-tip="' + esc(i.name) +
+        '" aria-label="Idea ' + pad(i.num) + ": " + esc(i.name) + '">' + pad(i.num) + "</button>";
+    }).join("");
+    grid.onclick = function (e) {
+      var cell = e.target.closest("[data-idea]");
+      if (cell) openModal(parseInt(cell.getAttribute("data-idea"), 10));
+    };
+    if (legend) {
+      legend.innerHTML = AREA_ORDER.filter(function (a) { return areaCount(a) > 0; })
+        .map(function (a) {
+          return '<span class="legend-item"><i class="swatch ' + (AREA_COLORS[a] || "ac-rule") +
+            '"></i>' + esc(a) + " · " + areaCount(a) + "</span>";
+        }).join("");
+    }
+  }
+
+  /* ---------- platform ticker ---------- */
+
+  var TICKER_ITEMS = [
+    "K8sGPT", "HolmesGPT", "kagent", "kubectl-ai", "LangGraph", "LiteLLM",
+    "OpenRouter", "Langfuse", "pgvector", "Qdrant", "vLLM", "Ollama",
+    "promptfoo", "CodeRabbit", "mcp-grafana", "Terraform MCP", "GitHub MCP",
+    "PydanticAI", "CrewAI", "OTel GenAI", "Arize Phoenix", "Qwen 3", "DeepSeek", "Llama 4"
+  ];
+
+  function renderMarquee() {
+    var track = $("marquee-track");
+    if (!track) return;
+    var seq = TICKER_ITEMS.map(function (name) {
+      return '<span class="marquee-item">' + esc(name) + '<i class="sep">✦</i></span>';
+    }).join("");
+    track.innerHTML = seq + seq; // two copies for a seamless -50% loop
+  }
+
   function delegateResults(e) {
     var card = e.target.closest("[data-idea]");
     if (card) openModal(parseInt(card.getAttribute("data-idea"), 10));
@@ -456,6 +652,9 @@
     initReveal();
     initStatCounters();
     initTerminalReveal();
+    initDemos();
+    renderAtlas();
+    renderMarquee();
 
     $("results").addEventListener("click", delegateResults);
 

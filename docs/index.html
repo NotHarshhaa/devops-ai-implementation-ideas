@@ -26,7 +26,7 @@
         <a class="nav-link" href="#platforms">Platforms</a>
         <a class="nav-link" href="#catalog">Catalog</a>
         <a class="btn btn-square" href="https://github.com/NotHarshhaa/devops-ai-implementation-ideas" target="_blank" rel="noopener">GitHub</a>
-        <a class="btn btn-teal" href="https://github.com/NotHarshhaa/devops-ai-implementation-ideas/stargazers" target="_blank" rel="noopener">Star&nbsp;&starf;</a>
+        <a class="btn btn-teal" href="https://github.com/NotHarshhaa/devops-ai-implementation-ideas" target="_blank" rel="noopener">Star&nbsp;&starf;</a>
         <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
@@ -94,6 +94,11 @@
       </div>
     </section>
 
+    <!-- ================= Platform ticker ================= -->
+    <div class="marquee" id="marquee" aria-hidden="true">
+      <div class="marquee-track" id="marquee-track"></div>
+    </div>
+
     <!-- ================= Features ================= -->
     <section class="section" id="features">
       <div class="container">
@@ -139,6 +144,33 @@
             <h3>Cost-aware</h3>
             <p>Event-driven workloads, cheap model tiers for triage, frontier models for deep analysis, and local-model escape hatches.</p>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Animated demos ================= -->
+    <section class="section" id="demos" style="padding-top: 0;">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Living demos</p>
+            <h2 class="section-heading">Watch an idea run,<br />start to finish.</h2>
+          </div>
+          <p class="body-copy">
+            Animated walk-throughs of three ideas from the catalog — the same
+            investigate&nbsp;→&nbsp;explain&nbsp;→&nbsp;draft-a-fix shape every idea follows.
+            They loop like gifs; switch tabs to change the story.
+          </p>
+        </div>
+
+        <div class="tab-strip demo-tabs" id="demo-tabs" role="tablist" aria-label="Choose a demo"></div>
+
+        <div class="terminal demo-terminal">
+          <div class="terminal-chrome">
+            <span class="c"></span><span class="c"></span><span class="c"></span>
+            <span class="title" id="demo-title"></span>
+          </div>
+          <div class="terminal-body" id="demo-body" aria-live="polite"></div>
         </div>
       </div>
     </section>
@@ -199,6 +231,25 @@
             <ul class="p-list"><li>pgvector</li><li>Qdrant</li><li>Weaviate</li><li>OpenSearch k-NN</li><li>BGE-M3 embeddings</li></ul>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ================= Idea atlas ================= -->
+    <section class="section" id="atlas" style="padding-top: 0;">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">The idea atlas</p>
+            <h2 class="section-heading">All 50 ideas.<br />One screen.</h2>
+          </div>
+          <p class="body-copy">
+            Every cell is one idea, colored by focus area. Hover for the name,
+            click to open the full brief — a fast way to scan the landscape before
+            diving into the catalog below.
+          </p>
+        </div>
+        <div class="atlas-legend" id="atlas-legend" aria-hidden="true"></div>
+        <div class="atlas-grid" id="atlas-grid"></div>
       </div>
     </section>
 
