@@ -587,6 +587,11 @@ button {
   flex-direction: column;
   gap: 16px;
   margin-bottom: 8px;
+  position: sticky;
+  top: 75px;
+  z-index: 20;
+  background: var(--color-paper);
+  padding: 12px 0 10px;
 }
 
 .toolbar-row {
@@ -594,6 +599,47 @@ button {
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
+}
+
+.toolbar-select {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid var(--color-rule-gray);
+  background: var(--color-white);
+  border-radius: 0;
+  padding: 11px 32px 11px 12px;
+  font-family: var(--font-geist-mono);
+  font-size: 13px;
+  color: var(--color-ink);
+  cursor: pointer;
+  outline: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%237c716a' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: border-color 0.15s ease;
+}
+
+.toolbar-select:hover { border-color: var(--color-steel); }
+.toolbar-select:focus { border-color: var(--color-butler-teal); box-shadow: 0 0 0 3px var(--color-aqua-mist); }
+
+.random-btn {
+  border: 1px solid var(--color-ink);
+  border-radius: 0;
+  background: transparent;
+  padding: 11px 16px;
+  font-family: var(--font-geist-mono);
+  font-size: 13px;
+  color: var(--color-ink);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.random-btn:hover { background: var(--color-ink); color: var(--color-white); }
+.random-btn .rb-prompt { color: var(--color-butler-teal); margin-right: 4px; }
+.random-btn:hover .rb-prompt { color: var(--color-aqua-midtone); }
+
+/* Don't pin the toolbar over small screens — it would eat too much viewport */
+@media (max-width: 720px) {
+  .catalog-toolbar { position: static; padding-top: 0; }
 }
 
 .search-wrap {
@@ -701,6 +747,14 @@ button {
   font-size: 12px;
   color: var(--color-warm-gray);
   margin: 16px 0;
+}
+
+/* Search match highlighting */
+mark {
+  background: var(--color-aqua-mist);
+  color: var(--color-deep-teal);
+  border-radius: 2px;
+  padding: 0 1px;
 }
 
 /* ---- Idea cards ---- */
@@ -1051,6 +1105,45 @@ button {
   gap: 12px;
   align-items: center;
   justify-content: space-between;
+}
+
+.modal-foot .mf-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Prev / next idea navigation inside the modal */
+.m-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.m-nav-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-rule-gray);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  color: var(--color-ink);
+  font-size: 18px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.m-nav-btn:hover { background: var(--color-ink); color: var(--color-white); border-color: var(--color-ink); }
+
+.m-nav-count {
+  font-family: var(--font-geist-mono);
+  font-size: 12px;
+  color: var(--color-deep-teal);
+  min-width: 5ch;
+  text-align: center;
 }
 
 .modal-foot .links { display: flex; gap: 12px; flex-wrap: wrap; }

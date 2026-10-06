@@ -11,8 +11,11 @@
     "DevSecOps", "Developer Experience", "Platform Engineering", "Agentic DevOps"
   ];
 
-  var state = { area: "All", query: "", view: "grid" };
+  var state = { area: "All", query: "", view: "grid", complexity: "All", sort: "num" };
   var lastFocus = null;
+  var currentIdea = null;
+
+  var COMPLEXITY_RANK = { Low: 0, Medium: 1, High: 2 };
 
   /* ---------- helpers ---------- */
 
@@ -36,6 +39,24 @@
     return IDEAS.filter(function (i) { return i.area === area; }).length;
   }
 
+  /* Escape text, then wrap query terms in <mark> for search highlighting */
+  function hl(text) {
+    var e = esc(text);
+    var q = state.query.trim();
+    if (!q) return e;
+    var terms = q.split(/\s+/).filter(function (t) {
+      return t && !/[&<>"']/.test(t); // skip terms that HTML-escaping would mangle
+    }).map(function (t) {
+      return t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    });
+    if (!terms.length) return e;
+    try {
+      return e.replace(new RegExp("(" + terms.join("|") + ")", "gi"), "<mark>$1</mark>");
+    } catch (err) {
+      return e;
+    }
+  }
+
   /* ---------- filtering ---------- */
 
   function haystack(idea) {
@@ -55,9 +76,26 @@
     var q = state.query.trim().toLowerCase();
     return IDEAS.filter(function (i) {
       if (state.area !== "All" && i.area !== state.area) return false;
+      if (state.complexity !== "All" && i.complexity !== state.complexity) return false;
       if (q && haystack(i).indexOf(q) === -1) return false;
       return true;
     });
+  }
+
+  function sorted(list) {
+    var copy = list.slice();
+    if (state.sort === "name") {
+      copy.sort(function (a, b) { return a.name.localeCompare(b.name); });
+    } else if (state.sort === "complexity") {
+      copy.sort(function (a, b) {
+        var ra = COMPLEXITY_RANK[a.complexity] != null ? COMPLEXITY_RANK[a.complexity] : 9;
+        var rb = COMPLEXITY_RANK[b.complexity] != null ? COMPLEXITY_RANK[b.complexity] : 9;
+        return ra - rb || a.num - b.num;
+      });
+    } else {
+      copy.sort(function (a, b) { return a.num - b.num; });
+    }
+    return copy;
   }
 
   /* ---------- area tabs ---------- */
@@ -87,11 +125,12 @@
   /* ---------- results ---------- */
 
   function renderResults() {
-    var list = filtered();
+    var list = sorted(filtered());
     var box = $("results");
     $("result-count").textContent =
       "showing " + list.length + " of " + IDEAS.length + " ideas" +
       (state.area !== "All" ? " · area: " + state.area : "") +
+      (state.complexity !== "All" ? " · complexity: " + state.complexity.toLowerCase() : "") +
       (state.query ? ' · query: "' + state.query + '"' : "");
 
     if (!list.length) {
@@ -101,7 +140,9 @@
         '<p style="margin:0">No ideas match that filter combination.</p>' +
         '<button class="btn btn-square" id="reset-filters">Reset filters</button></div>';
       $("reset-filters").onclick = function () {
-        state.area = "All"; state.query = ""; $("search").value = "";
+        state.area = "All"; state.query = ""; state.complexity = "All";
+        $("search").value = "";
+        $("complexity-filter").value = "All";
         renderTabs(); renderResults();
       };
       return;
@@ -120,8 +161,8 @@
       return '<button class="card" data-idea="' + i.num + '" style="--i:' + idx + '">' +
         '<div class="card-top"><span class="num">' + pad(i.num) + "</span>" +
         '<span class="area-tag">' + esc(i.area) + "</span></div>" +
-        "<h3>" + esc(i.name) + "</h3>" +
-        '<p class="tldr">' + esc(i.tldr) + "</p>" +
+        "<h3>" + hl(i.name) + "</h3>" +
+        '<p class="tldr">' + hl(i.tldr) + "</p>" +
         '<div class="card-meta"><span>' + esc(i.complexity) + "</span><span>" +
         esc(i.automation) + "</span></div></button>";
     }).join("") + fillerHtml + "</div>";
@@ -131,7 +172,7 @@
     return '<div class="index-table">' + list.map(function (i) {
       return '<button class="index-row" data-idea="' + i.num + '">' +
         '<span class="i-num">' + pad(i.num) + "</span>" +
-        '<span class="i-name">' + esc(i.name) + "</span>" +
+        '<span class="i-name">' + hl(i.name) + "</span>" +
         '<span class="i-area">' + esc(i.area) + "</span>" +
         '<span class="i-meta">' + esc(i.complexity.toLowerCase()) + " · " +
         esc(i.automation.toLowerCase()) + "</span></button>";
@@ -223,8 +264,17 @@
 
     h += "</div>";
 
-    h += '<div class="modal-foot"><span class="result-count" style="margin:0">📐 architecture documented · no implementation yet</span>' +
+    h += '<div class="modal-foot">' +
+      '<div class="mf-left">' +
+      '<div class="m-nav" aria-label="Idea navigation">' +
+      '<button class="m-nav-btn" id="modal-prev" aria-label="Previous idea">&#8249;</button>' +
+      '<span class="m-nav-count">' + pad(i.num) + " / " + pad(IDEAS.length) + "</span>" +
+      '<button class="m-nav-btn" id="modal-next" aria-label="Next idea">&#8250;</button>' +
+      "</div>" +
+      '<span class="result-count" style="margin:0">📐 architecture documented · no implementation yet</span>' +
+      "</div>" +
       '<div class="links">' +
+      '<button class="pill" id="copy-link" type="button">copy link</button>' +
       '<a class="pill" href="' + ghUrl(i, "README.md") + '" target="_blank" rel="noopener">README.md ↗</a>' +
       '<a class="pill" href="' + ghUrl(i, "architecture/architecture.md") + '" target="_blank" rel="noopener">architecture.md ↗</a>' +
       "</div></div>";
@@ -232,13 +282,35 @@
     return h;
   }
 
+  function stepIdea(delta) {
+    if (!currentIdea) return;
+    var next = ((currentIdea - 1 + delta + IDEAS.length) % IDEAS.length) + 1;
+    openModal(next);
+  }
+
+  function copyIdeaLink(btn) {
+    var url = location.href;
+    var done = function (ok) {
+      var original = "copy link";
+      btn.textContent = ok ? "copied ✓" : "copy failed";
+      setTimeout(function () { btn.textContent = original; }, 1400);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () { done(true); }, function () { done(false); });
+    } else {
+      done(false);
+    }
+  }
+
   function openModal(num, pushHash) {
     var idea = IDEAS.find(function (x) { return x.num === num; });
     if (!idea) return;
     if (!document.body.classList.contains("modal-open")) lastFocus = document.activeElement;
+    currentIdea = num;
     $("modal-content").innerHTML = modalHtml(idea);
     $("modal-overlay").classList.add("open");
     document.body.classList.add("modal-open");
+    $("modal-overlay").scrollTop = 0;
     $("modal").scrollTop = 0;
     $("modal-close").focus();
     if (pushHash !== false) {
@@ -250,6 +322,7 @@
     $("modal-overlay").classList.remove("open");
     document.body.classList.remove("modal-open");
     history.replaceState(null, "", location.pathname + location.search);
+    currentIdea = null;
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
 
@@ -399,20 +472,41 @@
     $("view-grid").addEventListener("click", function () { setView("grid"); });
     $("view-index").addEventListener("click", function () { setView("index"); });
 
+    $("complexity-filter").addEventListener("change", function (e) {
+      state.complexity = e.target.value;
+      renderResults();
+    });
+
+    $("sort").addEventListener("change", function (e) {
+      state.sort = e.target.value;
+      renderResults();
+    });
+
+    $("random-idea").addEventListener("click", function () {
+      openModal(IDEAS[Math.floor(Math.random() * IDEAS.length)].num);
+    });
+
     $("modal-overlay").addEventListener("click", function (e) {
       if (e.target === $("modal-overlay")) closeModal();
     });
 
     $("modal-content").addEventListener("click", function (e) {
       if (e.target.closest("#modal-close")) { closeModal(); return; }
+      if (e.target.closest("#modal-prev")) { stepIdea(-1); return; }
+      if (e.target.closest("#modal-next")) { stepIdea(1); return; }
+      if (e.target.closest("#copy-link")) { copyIdeaLink(e.target.closest("#copy-link")); return; }
       var rel = e.target.closest("[data-related]");
       if (rel) openModal(parseInt(rel.getAttribute("data-related"), 10));
     });
 
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && document.body.classList.contains("modal-open")) closeModal();
-      if (e.key === "/" && document.activeElement !== $("search") &&
-          !document.body.classList.contains("modal-open")) {
+      if (document.body.classList.contains("modal-open")) {
+        if (e.key === "ArrowLeft") stepIdea(-1);
+        if (e.key === "ArrowRight") stepIdea(1);
+        return;
+      }
+      if (e.key === "/" && document.activeElement !== $("search")) {
         e.preventDefault();
         $("search").focus();
       }

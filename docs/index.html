@@ -211,7 +211,8 @@
             <h2 class="section-heading">50 ideas.<br />One of them is your next weekend build.</h2>
           </div>
           <p class="body-copy">
-            Filter by focus area or search across names, problems and integrations.
+            Filter by focus area and complexity, search across names, problems and
+            integrations, or roll the dice with <span class="mono">$ random</span>.
             Click any idea for the full brief — problem, workflow, architecture and platforms.
           </p>
         </div>
@@ -222,6 +223,18 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
               <input id="search" type="search" placeholder="search 50 ideas…  ( / )" aria-label="Search ideas" />
             </div>
+            <select id="complexity-filter" class="toolbar-select" aria-label="Filter by complexity">
+              <option value="All">complexity: all</option>
+              <option value="Low">complexity: low</option>
+              <option value="Medium">complexity: medium</option>
+              <option value="High">complexity: high</option>
+            </select>
+            <select id="sort" class="toolbar-select" aria-label="Sort ideas">
+              <option value="num">sort: number</option>
+              <option value="name">sort: A–Z</option>
+              <option value="complexity">sort: complexity</option>
+            </select>
+            <button id="random-idea" class="random-btn" aria-label="Open a random idea"><span class="rb-prompt">$</span> random</button>
             <div class="segmented" role="group" aria-label="View mode">
               <button id="view-grid" class="active" aria-pressed="true">Grid</button>
               <button id="view-index" aria-pressed="false">Index</button>
