@@ -96,7 +96,9 @@
 
     if (!list.length) {
       box.innerHTML =
-        '<div class="empty-state"><p style="margin:0">No ideas match that filter combination.</p>' +
+        '<div class="empty-state">' +
+        '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/><path d="M8.5 11h5"/></svg>' +
+        '<p style="margin:0">No ideas match that filter combination.</p>' +
         '<button class="btn btn-square" id="reset-filters">Reset filters</button></div>';
       $("reset-filters").onclick = function () {
         state.area = "All"; state.query = ""; $("search").value = "";
@@ -109,15 +111,20 @@
   }
 
   function gridHtml(list) {
-    return '<div class="cards-grid">' + list.map(function (i) {
-      return '<button class="card" data-idea="' + i.num + '">' +
+    // pad the last row of the 3-column grid so the gray grid background
+    // doesn't show through as a solid block after the final card
+    var fillers = (3 - (list.length % 3)) % 3;
+    var fillerHtml = "";
+    for (var f = 0; f < fillers; f++) fillerHtml += '<div class="card-filler" aria-hidden="true"></div>';
+    return '<div class="cards-grid">' + list.map(function (i, idx) {
+      return '<button class="card" data-idea="' + i.num + '" style="--i:' + idx + '">' +
         '<div class="card-top"><span class="num">' + pad(i.num) + "</span>" +
         '<span class="area-tag">' + esc(i.area) + "</span></div>" +
         "<h3>" + esc(i.name) + "</h3>" +
         '<p class="tldr">' + esc(i.tldr) + "</p>" +
         '<div class="card-meta"><span>' + esc(i.complexity) + "</span><span>" +
         esc(i.automation) + "</span></div></button>";
-    }).join("") + "</div>";
+    }).join("") + fillerHtml + "</div>";
   }
 
   function indexHtml(list) {
@@ -246,7 +253,121 @@
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
 
-  /* ---------- events ---------- */
+  /* ---------- UI polish: mobile menu, scroll-spy, reveal, counters, terminal ---------- */
+
+  var prefersReducedMotion = window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function initMobileMenu() {
+    var toggle = $("nav-toggle");
+    var menu = $("mobile-menu");
+    if (!toggle || !menu) return;
+    toggle.addEventListener("click", function () {
+      var open = menu.classList.toggle("open");
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    });
+    menu.addEventListener("click", function (e) {
+      if (e.target.closest("a")) {
+        menu.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+
+  function initScrollSpy() {
+    var links = Array.prototype.slice.call(
+      document.querySelectorAll(".site-nav a.nav-link[href^='#']")
+    );
+    var byId = {};
+    links.forEach(function (l) { byId[l.getAttribute("href").slice(1)] = l; });
+    if (!("IntersectionObserver" in window)) return;
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var link = byId[entry.target.id];
+        if (!link) return;
+        if (entry.isIntersecting) {
+          links.forEach(function (l) { l.classList.remove("active"); });
+          link.classList.add("active");
+        }
+      });
+    }, { rootMargin: "-40% 0px -55% 0px" });
+    Object.keys(byId).forEach(function (id) {
+      var section = document.getElementById(id);
+      if (section) spy.observe(section);
+    });
+  }
+
+  function initReveal() {
+    if (prefersReducedMotion || !("IntersectionObserver" in window)) return;
+    var targets = document.querySelectorAll(
+      ".hero-badges, .hero .display, .hero-sub, .hero-actions, .terminal, " +
+      ".section-head, .hairline-grid, .catalog-toolbar, .cta"
+    );
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    Array.prototype.forEach.call(targets, function (el, idx) {
+      el.classList.add("reveal");
+      el.style.setProperty("--reveal-delay", Math.min(idx % 4, 3) * 60 + "ms");
+      observer.observe(el);
+    });
+  }
+
+  function initStatCounters() {
+    if (prefersReducedMotion) return;
+    var nums = document.querySelectorAll(".stat .num");
+    if (!nums.length || !("IntersectionObserver" in window)) return;
+    var observer = new IntersectionObserver(function (entries) {
+      if (!entries.some(function (e) { return e.isIntersecting; })) return;
+      observer.disconnect();
+      Array.prototype.forEach.call(nums, function (el) {
+        var m = el.innerHTML.match(/^\s*(\d+)([\s\S]*)$/);
+        if (!m) return;
+        var target = parseInt(m[1], 10);
+        var rest = m[2];
+        var start = null;
+        var duration = 900;
+        function tick(ts) {
+          if (start === null) start = ts;
+          var p = Math.min((ts - start) / duration, 1);
+          var eased = 1 - Math.pow(1 - p, 3);
+          el.innerHTML = Math.round(target * eased) + rest;
+          if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
+    }, { threshold: 0.4 });
+    observer.observe(document.querySelector(".stats"));
+  }
+
+  function initTerminalReveal() {
+    if (prefersReducedMotion) return;
+    var body = document.querySelector(".terminal-body");
+    if (!body) return;
+    var nodes = Array.prototype.slice.call(body.childNodes);
+    var lines = [[]];
+    nodes.forEach(function (n) {
+      if (n.nodeName === "BR") lines.push([]);
+      else lines[lines.length - 1].push(n);
+    });
+    body.innerHTML = "";
+    lines.forEach(function (lineNodes, idx) {
+      var span = document.createElement("span");
+      span.className = "t-line";
+      span.style.setProperty("--l", idx);
+      lineNodes.forEach(function (n) { span.appendChild(n); });
+      body.appendChild(span);
+      if (idx < lines.length - 1) body.appendChild(document.createElement("br"));
+    });
+  }
+
+
 
   function delegateResults(e) {
     var card = e.target.closest("[data-idea]");
@@ -256,6 +377,12 @@
   function init() {
     renderTabs();
     renderResults();
+
+    initMobileMenu();
+    initScrollSpy();
+    initReveal();
+    initStatCounters();
+    initTerminalReveal();
 
     $("results").addEventListener("click", delegateResults);
 
